@@ -37,7 +37,7 @@ fn main() -> io::Result<()> {
 }
 
 #[cfg(test)]
-mod tests {
+mod watermelon {
     use super::*;
 
     #[test]
