@@ -1,5 +1,5 @@
 [package]
-name = "structs_and_algos"
+name = "legos"
 version = "0.1.0"
 authors = ["Yashasvi Sriram Patkuri <yash.3997@gmail.com>"]
 edition = "2018"
