@@ -20,7 +20,7 @@ fn decompose_as_round_numbers(num: u32) {
     for round_number in round_numbers.into_iter() {
         print!("{:?} ", round_number);
     }
-    println!("");
+    println!();
 }
 
 fn main() {
@@ -38,4 +38,3 @@ fn main() {
         decompose_as_round_numbers(input);
     }
 }
-
