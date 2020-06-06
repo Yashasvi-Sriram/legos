@@ -122,8 +122,22 @@ fn get_inventory() -> Vec<KnapsackItem> {
 
 mod exponential {
     // FIXME: use ordered set impl instead of assuming vec is a set
-    fn power_set_of(index: usize, size: usize, parent: &Vec<usize>) -> Vec<Vec<usize>> {
-        if index == size {
+    fn power_set_of(
+        index: usize,
+        size: usize,
+        parent: &Vec<usize>,
+        capacity: usize,
+        inventory: &Vec<super::KnapsackItem>,
+    ) -> Vec<Vec<usize>> {
+        if parent
+            .iter()
+            .map(|index| inventory[*index].weight)
+            .collect::<Vec<usize>>()
+            .iter()
+            .sum::<usize>()
+            > capacity
+            || index == size
+        {
             return vec![parent.clone()];
         }
 
@@ -132,10 +146,10 @@ mod exponential {
             clone.push(index);
             clone
         };
-        let left_subsets = power_set_of(index + 1, size, &left);
+        let left_subsets = power_set_of(index + 1, size, &left, capacity, inventory);
 
         let right = parent.clone();
-        let right_subsets = power_set_of(index + 1, size, &right);
+        let right_subsets = power_set_of(index + 1, size, &right, capacity, inventory);
 
         return left_subsets
             .into_iter()
@@ -159,7 +173,7 @@ mod exponential {
             );
         }
         // Power set of indices
-        let all_combinations = power_set_of(0usize, inventory.len(), &vec![]);
+        let all_combinations = power_set_of(0usize, inventory.len(), &vec![], capacity, inventory);
         if debug {
             println!("total #combinations = {}", all_combinations.len());
         }
