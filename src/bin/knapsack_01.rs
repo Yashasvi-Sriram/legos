@@ -122,13 +122,13 @@ fn get_inventory() -> Vec<KnapsackItem> {
 
 mod exponential {
     // FIXME: use ordered set impl instead of assuming vec is a set
-    fn power_set_of(
+    fn pack_recur(
         index: usize,
         size: usize,
         parent: &Vec<usize>,
         capacity: usize,
         inventory: &Vec<super::KnapsackItem>,
-    ) -> Vec<Vec<usize>> {
+    ) -> Option<Vec<usize>> {
         if parent
             .iter()
             .map(|index| inventory[*index].weight)
@@ -136,9 +136,11 @@ mod exponential {
             .iter()
             .sum::<usize>()
             > capacity
-            || index == size
         {
-            return vec![parent.clone()];
+            return None;
+        }
+        if index == size {
+            return Some(parent.clone());
         }
 
         let left = {
@@ -146,15 +148,35 @@ mod exponential {
             clone.push(index);
             clone
         };
-        let left_subsets = power_set_of(index + 1, size, &left, capacity, inventory);
+        let left_best_pack = pack_recur(index + 1, size, &left, capacity, inventory);
 
         let right = parent.clone();
-        let right_subsets = power_set_of(index + 1, size, &right, capacity, inventory);
+        let right_best_pack = pack_recur(index + 1, size, &right, capacity, inventory);
 
-        return left_subsets
-            .into_iter()
-            .chain(right_subsets.into_iter())
-            .collect();
+        match (left_best_pack, right_best_pack) {
+            (Some(left), Some(right)) => {
+                let left_value: i32 = left
+                    .iter()
+                    .map(|index| inventory[*index].value)
+                    .collect::<Vec<i32>>()
+                    .iter()
+                    .sum();
+                let right_value: i32 = right
+                    .iter()
+                    .map(|index| inventory[*index].value)
+                    .collect::<Vec<i32>>()
+                    .iter()
+                    .sum();
+                if right_value > left_value {
+                    return Some(right);
+                } else {
+                    return Some(left);
+                }
+            }
+            (Some(left), None) => return Some(left),
+            (None, Some(right)) => return Some(right),
+            (None, None) => return None,
+        }
     }
 
     pub fn pack(capacity: usize, inventory: &Vec<super::KnapsackItem>, debug: bool) -> Vec<usize> {
@@ -173,62 +195,43 @@ mod exponential {
             );
         }
         // Power set of indices
-        let all_combinations = power_set_of(0usize, inventory.len(), &vec![], capacity, inventory);
-        if debug {
-            println!("total #combinations = {}", all_combinations.len());
-        }
-        // Highest value combination
-        let mut highest_value_index = 0;
-        let mut highest_value = i32::min_value();
-        for (cmb_i, cmb) in all_combinations.iter().enumerate() {
-            let total_weight: usize = cmb
-                .iter()
-                .map(|index| inventory[*index].weight)
-                .collect::<Vec<usize>>()
-                .iter()
-                .sum();
-            let total_value: i32 = cmb
-                .iter()
-                .map(|index| inventory[*index].value)
-                .collect::<Vec<i32>>()
-                .iter()
-                .sum();
-            if total_weight <= capacity && total_value > highest_value {
-                highest_value = total_value;
-                highest_value_index = cmb_i;
-            }
-        }
+        let best_combination =
+            pack_recur(0usize, inventory.len(), &vec![], capacity, inventory).unwrap();
         if debug {
             println!(
         "highest value combination =\n\t{:?}\n\t{:?}\nweights\t{:?}\nsum\t{}\nvalues\t{:?}\nsum\t{}",
-        all_combinations[highest_value_index],
-        all_combinations[highest_value_index]
+        best_combination,
+        best_combination
             .iter()
             .map(|index| inventory[*index].name)
             .collect::<Vec<&str>>(),
-        all_combinations[highest_value_index]
+        best_combination
             .iter()
             .map(|index| inventory[*index].weight)
             .collect::<Vec<usize>>(),
-        all_combinations[highest_value_index]
+        best_combination
             .iter()
             .map(|index| inventory[*index].weight)
             .collect::<Vec<usize>>()
             .iter()
             .sum::<usize>(),
-        all_combinations[highest_value_index]
+        best_combination
             .iter()
             .map(|index| inventory[*index].value)
             .collect::<Vec<i32>>(),
-        highest_value
+        best_combination
+            .iter()
+            .map(|index| inventory[*index].value)
+            .collect::<Vec<i32>>()
+            .iter()
+            .sum::<i32>()
         );
         }
-        all_combinations[highest_value_index].clone()
+        best_combination.clone()
     }
 }
 
 fn main() {
-    // Parameters
     let capacity = 400usize;
     let inventory = get_inventory();
     exponential::pack(capacity, &inventory, true);
@@ -240,7 +243,6 @@ mod knapsack_01 {
 
     #[test]
     fn survival_kit_exponential() {
-        // Parameters
         let capacity = 400usize;
         let inventory = get_inventory();
         let best_combination = exponential::pack(capacity, &inventory, false);
