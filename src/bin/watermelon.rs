@@ -18,15 +18,10 @@ fn can_split_into_even_parts(num: u32) -> bool {
 
 fn main() -> io::Result<()> {
     let mut buffer = String::new();
-    io::stdin()
-        .read_to_string(&mut buffer)
-        .unwrap();
+    io::stdin().read_to_string(&mut buffer).unwrap();
 
     // 1 <= kilos <= 100
-    let kilos = buffer
-                    .trim()
-                    .parse::<u32>()
-                    .unwrap();
+    let kilos = buffer.trim().parse::<u32>().unwrap();
 
     if can_split_into_even_parts(kilos) {
         println!("YES");
@@ -42,16 +37,16 @@ mod watermelon {
 
     #[test]
     fn one_to_nine() {
-        assert_eq!(can_split_into_even_parts( 1u32), false);
-        assert_eq!(can_split_into_even_parts( 2u32), false);
-        assert_eq!(can_split_into_even_parts( 3u32), false);
-        assert_eq!(can_split_into_even_parts( 5u32), false);
-        assert_eq!(can_split_into_even_parts( 7u32), false);
-        assert_eq!(can_split_into_even_parts( 9u32), false);
+        assert_eq!(can_split_into_even_parts(1u32), false);
+        assert_eq!(can_split_into_even_parts(2u32), false);
+        assert_eq!(can_split_into_even_parts(3u32), false);
+        assert_eq!(can_split_into_even_parts(5u32), false);
+        assert_eq!(can_split_into_even_parts(7u32), false);
+        assert_eq!(can_split_into_even_parts(9u32), false);
 
-        assert_eq!(can_split_into_even_parts( 4u32), true);
-        assert_eq!(can_split_into_even_parts( 6u32), true);
-        assert_eq!(can_split_into_even_parts( 8u32), true);
+        assert_eq!(can_split_into_even_parts(4u32), true);
+        assert_eq!(can_split_into_even_parts(6u32), true);
+        assert_eq!(can_split_into_even_parts(8u32), true);
     }
 
     #[test]
