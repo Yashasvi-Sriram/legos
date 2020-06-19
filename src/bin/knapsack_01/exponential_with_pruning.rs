@@ -6,6 +6,7 @@ fn power_set_of(
     capacity: usize,
     inventory: &Vec<super::KnapsackItem>,
 ) -> Vec<Vec<usize>> {
+    // Pruning
     if parent
         .iter()
         .map(|index| inventory[*index].weight)

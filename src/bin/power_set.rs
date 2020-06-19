@@ -137,6 +137,6 @@ mod power_set {
         // println!("{}ns", i4.duration_since(i3).as_nanos());
         // println!("{}ns", i5.duration_since(i4).as_nanos());
         // println!("{}ns", i6.duration_since(i5).as_nanos());
-        // TODO: impl a exponential curve fitter and check if the durations follow an exponenetial curve
+        // FIXME: impl a exponential curve fitter to verify time complexity and visualize it
     }
 }
