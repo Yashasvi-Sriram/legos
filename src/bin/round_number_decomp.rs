@@ -38,3 +38,5 @@ fn main() {
         decompose_as_round_numbers(input);
     }
 }
+
+// FIXME: add tests
