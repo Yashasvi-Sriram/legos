@@ -2,7 +2,8 @@
 - A collection of problems on structures and algorithms.
 - Each crate under `src/bin` corresponds to exactly one problem.
 - There is no dependency b/w any two crates
-- Unit testing is used to add manual test cases.
+- Unit testing is used to add manual test cases for correctness and speed-improvements.
+- Rust stable is used.
 
 # Usage
 - Use `cargo run --bin <crate>` to run (the main function of, not the tests) a crate.
