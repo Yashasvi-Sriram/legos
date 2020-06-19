@@ -4,8 +4,7 @@ use data::{get_inventory, KnapsackItem};
 mod exponential_with_pruning_and_implicit_comparision;
 
 fn main() {
-    let capacity = 400usize;
-    let inventory = get_inventory();
+    let (capacity, inventory) = get_inventory();
     exponential_with_pruning_and_implicit_comparision::pack(capacity, &inventory, true);
 }
 
@@ -15,8 +14,7 @@ mod knapsack_01 {
 
     #[test]
     fn exponential_with_pruning_and_implicit_comparision() {
-        let capacity = 400usize;
-        let inventory = get_inventory();
+        let (capacity, inventory) = get_inventory();
         let best_combination =
             exponential_with_pruning_and_implicit_comparision::pack(capacity, &inventory, false);
         assert_eq!(

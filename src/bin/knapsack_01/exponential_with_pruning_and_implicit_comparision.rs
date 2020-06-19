@@ -6,6 +6,7 @@ fn pack_recur(
     capacity: usize,
     inventory: &Vec<super::KnapsackItem>,
 ) -> Option<Vec<usize>> {
+    // Pruning
     if parent
         .iter()
         .map(|index| inventory[*index].weight)
@@ -30,6 +31,7 @@ fn pack_recur(
     let right = parent.clone();
     let right_best_pack = pack_recur(index + 1, size, &right, capacity, inventory);
 
+    // Implicit comparision
     match (left_best_pack, right_best_pack) {
         (Some(left), Some(right)) => {
             let left_value: i32 = left
