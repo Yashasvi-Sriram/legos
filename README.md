@@ -6,5 +6,5 @@
 
 # Usage
 - Use `cargo run --bin <crate>` to run (the main function of, not the tests) a crate.
-- Use `cargo test` to run all tests.
-- Most single-file crates can be submitted to codeforces as-is.
+- Use `cargo test` to run tests in all crates.
+- A crate corresponding to a codeforces problem is a single file and can be submitted as-is.

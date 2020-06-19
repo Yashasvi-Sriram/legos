@@ -57,4 +57,86 @@ mod power_set {
             ]
         );
     }
+
+    extern crate textplots;
+
+    use std::time::Instant;
+    use textplots::{Chart, Plot, Shape};
+
+    fn normalize(samples: &Vec<(f32, f32)>) -> Vec<(f32, f32)> {
+        let norm_x = samples.iter().map(|&(x, _)| x * x).sum::<f32>().sqrt();
+        let norm_y = samples.iter().map(|&(_, y)| y * y).sum::<f32>().sqrt();
+        let mut normalized = vec![];
+        for &(x, y) in samples.iter() {
+            normalized.push((x / norm_x, y / norm_y));
+        }
+        return normalized;
+    }
+
+    fn min_max_scale(samples: &Vec<f32>) -> Vec<f32> {
+        let mut min = f32::INFINITY;
+        let mut max = f32::NEG_INFINITY;
+        for &x in samples.iter() {
+            if x > max {
+                max = x;
+            }
+            if x < min {
+                min = x;
+            }
+        }
+        let mut scaled = samples.clone();
+        for (i, &x) in samples.iter().enumerate() {
+            scaled[i] = (x - min) / (max - min);
+        }
+        scaled
+    }
+
+    fn scale(samples: &Vec<(f32, f32)>) -> Vec<(f32, f32)> {
+        let first = samples.iter().map(|&(x, _)| x).collect::<Vec<f32>>();
+        let second = samples.iter().map(|&(_, y)| y).collect::<Vec<f32>>();
+        let scaled_first = min_max_scale(&first);
+        let scaled_second = min_max_scale(&second);
+        let mut scaled = vec![];
+        for i in 0..scaled_first.len() {
+            scaled.push((scaled_first[i], scaled_second[i]));
+        }
+        return scaled;
+    }
+
+    #[test]
+    fn bench() {
+        let i1 = Instant::now();
+        power_set_of(&vec![1, 2], 0, &vec![]);
+        let i2 = Instant::now();
+        power_set_of(&vec![1, 2, 3], 0, &vec![]);
+        let i3 = Instant::now();
+        power_set_of(&vec![1, 2, 3, 4], 0, &vec![]);
+        let i4 = Instant::now();
+        power_set_of(&vec![1, 2, 3, 4, 5], 0, &vec![]);
+        let i5 = Instant::now();
+        power_set_of(&vec![1, 2, 3, 4, 5, 6], 0, &vec![]);
+        let i6 = Instant::now();
+        let samples = vec![
+            (2f32, i2.duration_since(i1).as_nanos() as f32),
+            (3f32, i3.duration_since(i2).as_nanos() as f32),
+            (4f32, i4.duration_since(i3).as_nanos() as f32),
+            (5f32, i5.duration_since(i4).as_nanos() as f32),
+            (6f32, i6.duration_since(i5).as_nanos() as f32),
+        ];
+        let normalized_samples = normalize(&samples);
+        let scaled_samples = scale(&samples);
+        Chart::new(100, 100, 0f32, 1f32)
+            .lineplot(Shape::Lines(&normalized_samples))
+            .lineplot(Shape::Lines(&scaled_samples))
+            .lineplot(Shape::Continuous(|_| 0f32))
+            .lineplot(Shape::Continuous(|x| x))
+            .lineplot(Shape::Continuous(|x| x * x))
+            .display();
+        // println!("{}ns", i2.duration_since(i1).as_nanos());
+        // println!("{}ns", i3.duration_since(i2).as_nanos());
+        // println!("{}ns", i4.duration_since(i3).as_nanos());
+        // println!("{}ns", i5.duration_since(i4).as_nanos());
+        // println!("{}ns", i6.duration_since(i5).as_nanos());
+        // TODO: impl a exponential curve fitter and check if the durations follow an exponenetial curve
+    }
 }
