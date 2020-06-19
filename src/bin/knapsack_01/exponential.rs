@@ -44,18 +44,8 @@ pub fn pack(capacity: usize, inventory: &Vec<super::KnapsackItem>, debug: bool) 
     let mut highest_value_index = 0;
     let mut highest_value = i32::min_value();
     for (cmb_i, cmb) in all_combinations.iter().enumerate() {
-        let total_weight: usize = cmb
-            .iter()
-            .map(|index| inventory[*index].weight)
-            .collect::<Vec<usize>>()
-            .iter()
-            .sum();
-        let total_value: i32 = cmb
-            .iter()
-            .map(|index| inventory[*index].value)
-            .collect::<Vec<i32>>()
-            .iter()
-            .sum();
+        let total_weight: usize = cmb.iter().map(|index| inventory[*index].weight).sum();
+        let total_value: i32 = cmb.iter().map(|index| inventory[*index].value).sum();
         if total_weight <= capacity && total_value > highest_value {
             highest_value = total_value;
             highest_value_index = cmb_i;
@@ -76,8 +66,6 @@ pub fn pack(capacity: usize, inventory: &Vec<super::KnapsackItem>, debug: bool) 
         all_combinations[highest_value_index]
             .iter()
             .map(|index| inventory[*index].weight)
-            .collect::<Vec<usize>>()
-            .iter()
             .sum::<usize>(),
         all_combinations[highest_value_index]
             .iter()

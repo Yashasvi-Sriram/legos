@@ -10,8 +10,6 @@ fn pack_recur(
     if parent
         .iter()
         .map(|index| inventory[*index].weight)
-        .collect::<Vec<usize>>()
-        .iter()
         .sum::<usize>()
         > capacity
     {
@@ -34,18 +32,8 @@ fn pack_recur(
     // Implicit comparision
     match (left_best_pack, right_best_pack) {
         (Some(left), Some(right)) => {
-            let left_value: i32 = left
-                .iter()
-                .map(|index| inventory[*index].value)
-                .collect::<Vec<i32>>()
-                .iter()
-                .sum();
-            let right_value: i32 = right
-                .iter()
-                .map(|index| inventory[*index].value)
-                .collect::<Vec<i32>>()
-                .iter()
-                .sum();
+            let left_value: i32 = left.iter().map(|index| inventory[*index].value).sum();
+            let right_value: i32 = right.iter().map(|index| inventory[*index].value).sum();
             if right_value > left_value {
                 return Some(right);
             } else {
@@ -91,8 +79,6 @@ pub fn pack(capacity: usize, inventory: &Vec<super::KnapsackItem>, debug: bool) 
         best_combination
             .iter()
             .map(|index| inventory[*index].weight)
-            .collect::<Vec<usize>>()
-            .iter()
             .sum::<usize>(),
         best_combination
             .iter()
@@ -101,8 +87,6 @@ pub fn pack(capacity: usize, inventory: &Vec<super::KnapsackItem>, debug: bool) 
         best_combination
             .iter()
             .map(|index| inventory[*index].value)
-            .collect::<Vec<i32>>()
-            .iter()
             .sum::<i32>()
         );
     }
