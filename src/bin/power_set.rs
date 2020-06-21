@@ -58,85 +58,75 @@ mod power_set {
         );
     }
 
-    extern crate textplots;
+    extern crate plotters;
 
+    use plotters::prelude::*;
     use std::time::Instant;
-    use textplots::{Chart, Plot, Shape};
-
-    fn normalize(samples: &Vec<(f32, f32)>) -> Vec<(f32, f32)> {
-        let norm_x = samples.iter().map(|&(x, _)| x * x).sum::<f32>().sqrt();
-        let norm_y = samples.iter().map(|&(_, y)| y * y).sum::<f32>().sqrt();
-        let mut normalized = vec![];
-        for &(x, y) in samples.iter() {
-            normalized.push((x / norm_x, y / norm_y));
-        }
-        return normalized;
-    }
-
-    fn min_max_scale(samples: &Vec<f32>) -> Vec<f32> {
-        let mut min = f32::INFINITY;
-        let mut max = f32::NEG_INFINITY;
-        for &x in samples.iter() {
-            if x > max {
-                max = x;
-            }
-            if x < min {
-                min = x;
-            }
-        }
-        let mut scaled = samples.clone();
-        for (i, &x) in samples.iter().enumerate() {
-            scaled[i] = (x - min) / (max - min);
-        }
-        scaled
-    }
-
-    fn scale(samples: &Vec<(f32, f32)>) -> Vec<(f32, f32)> {
-        let first = samples.iter().map(|&(x, _)| x).collect::<Vec<f32>>();
-        let second = samples.iter().map(|&(_, y)| y).collect::<Vec<f32>>();
-        let scaled_first = min_max_scale(&first);
-        let scaled_second = min_max_scale(&second);
-        let mut scaled = vec![];
-        for i in 0..scaled_first.len() {
-            scaled.push((scaled_first[i], scaled_second[i]));
-        }
-        return scaled;
-    }
 
     #[test]
-    fn bench() {
-        let i1 = Instant::now();
-        power_set_of(&vec![1, 2], 0, &vec![]);
-        let i2 = Instant::now();
-        power_set_of(&vec![1, 2, 3], 0, &vec![]);
-        let i3 = Instant::now();
-        power_set_of(&vec![1, 2, 3, 4], 0, &vec![]);
-        let i4 = Instant::now();
-        power_set_of(&vec![1, 2, 3, 4, 5], 0, &vec![]);
-        let i5 = Instant::now();
-        power_set_of(&vec![1, 2, 3, 4, 5, 6], 0, &vec![]);
-        let i6 = Instant::now();
-        let samples = vec![
-            (2f32, i2.duration_since(i1).as_nanos() as f32),
-            (3f32, i3.duration_since(i2).as_nanos() as f32),
-            (4f32, i4.duration_since(i3).as_nanos() as f32),
-            (5f32, i5.duration_since(i4).as_nanos() as f32),
-            (6f32, i6.duration_since(i5).as_nanos() as f32),
-        ];
-        let normalized_samples = normalize(&samples);
-        let scaled_samples = scale(&samples);
-        Chart::new(100, 100, 0f32, 1f32)
-            .lineplot(Shape::Lines(&normalized_samples))
-            .lineplot(Shape::Lines(&scaled_samples))
-            .lineplot(Shape::Continuous(|_| 0f32))
-            .lineplot(Shape::Continuous(|x| x))
-            .lineplot(Shape::Continuous(|x| x * x))
-            .display();
-        // println!("{}ns", i2.duration_since(i1).as_nanos());
-        // println!("{}ns", i3.duration_since(i2).as_nanos());
-        // println!("{}ns", i4.duration_since(i3).as_nanos());
-        // println!("{}ns", i5.duration_since(i4).as_nanos());
-        // println!("{}ns", i6.duration_since(i5).as_nanos());
+    fn time_vs_n() {
+        // Get runtimes
+        let num_samples = 12u32;
+        let mut runtimes = vec![];
+        for n in 0..num_samples {
+            let before = Instant::now();
+            power_set_of(&(0..n).collect(), 0, &vec![]);
+            let after = Instant::now();
+            let duration_as_nanos = after.duration_since(before).as_nanos();
+            runtimes.push(duration_as_nanos as f32);
+            println!("n={}, t={}ns", n, duration_as_nanos);
+        }
+        // Normalize runtimes
+        let runtimes_norm = runtimes.iter().map(|&x| x * x).sum::<f32>().sqrt();
+        let normalized_runtimes = runtimes
+            .iter()
+            .map(|&x| x / runtimes_norm)
+            .collect::<Vec<f32>>();
+        // Prepare samples for plotting
+        let mut normalized_samples = vec![];
+        for (i, &runtime) in normalized_runtimes.iter().enumerate() {
+            normalized_samples.push(((i as f32) / (num_samples as f32), runtime));
+        }
+        // Plot
+        let root = BitMapBackend::new("0.png", (900, 900)).into_drawing_area();
+        root.fill(&WHITE).unwrap();
+        let mut chart = ChartBuilder::on(&root)
+            .set_label_area_size(LabelAreaPosition::Left, 30)
+            .set_label_area_size(LabelAreaPosition::Bottom, 30)
+            .caption(
+                "time vs problem-size (both scaled)",
+                ("sans-serif", 20).into_font(),
+            )
+            .build_ranged(0f32..1f32, 0f32..1f32)
+            .unwrap();
+        chart.configure_mesh().draw().unwrap();
+        chart
+            .draw_series(LineSeries::new(normalized_samples, &RED))
+            .unwrap()
+            .label("power set")
+            .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], &RED));
+        chart
+            .draw_series(LineSeries::new(
+                (0..=50).map(|x| (x as f32 / 50.0, x as f32 / 50.0)),
+                &GREEN,
+            ))
+            .unwrap()
+            .label("y = x")
+            .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], &GREEN));
+        chart
+            .draw_series(LineSeries::new(
+                (0..=50).map(|x| x as f32 / 50.0).map(|x| (x, x * x)),
+                &BLUE,
+            ))
+            .unwrap()
+            .label("y = x^2")
+            .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], &BLUE));
+        chart
+            .configure_series_labels()
+            .background_style(&WHITE.mix(0.8))
+            .border_style(&BLACK)
+            .draw()
+            .unwrap();
         // FIXME: impl a exponential curve fitter to verify time complexity and visualize it
     }
 }
