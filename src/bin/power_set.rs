@@ -32,7 +32,7 @@ fn main() {
 }
 
 #[cfg(test)]
-mod power_set {
+mod tests {
     use super::*;
 
     #[test]
@@ -64,7 +64,7 @@ mod power_set {
     use std::time::Instant;
 
     #[test]
-    fn time_vs_n() {
+    fn time_complexity() {
         // Get runtimes
         let num_samples = 12u32;
         let mut runtimes = vec![];
@@ -74,7 +74,7 @@ mod power_set {
             let after = Instant::now();
             let duration_as_nanos = after.duration_since(before).as_nanos();
             runtimes.push(duration_as_nanos as f32);
-            println!("n={}, t={}ns", n, duration_as_nanos);
+            // println!("n={}, t={}ns", n, duration_as_nanos);
         }
         // Normalize runtimes
         let runtimes_norm = runtimes.iter().map(|&x| x * x).sum::<f32>().sqrt();
@@ -88,15 +88,12 @@ mod power_set {
             normalized_samples.push(((i as f32) / (num_samples as f32), runtime));
         }
         // Plot
-        let root = BitMapBackend::new("0.png", (900, 900)).into_drawing_area();
-        root.fill(&WHITE).unwrap();
-        let mut chart = ChartBuilder::on(&root)
+        let img_path = format!("test_logs/{}::time_complexity.png", module_path!());
+        let img = BitMapBackend::new(&img_path, (900, 900)).into_drawing_area();
+        img.fill(&WHITE).unwrap();
+        let mut chart = ChartBuilder::on(&img)
             .set_label_area_size(LabelAreaPosition::Left, 30)
             .set_label_area_size(LabelAreaPosition::Bottom, 30)
-            .caption(
-                "time vs problem-size (both scaled)",
-                ("sans-serif", 20).into_font(),
-            )
             .build_ranged(0f32..1f32, 0f32..1f32)
             .unwrap();
         chart.configure_mesh().draw().unwrap();

@@ -13,7 +13,7 @@ fn main() {
 }
 
 #[cfg(test)]
-mod knapsack_01 {
+mod tests {
     use super::*;
 
     #[test]
