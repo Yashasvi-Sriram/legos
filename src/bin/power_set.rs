@@ -60,48 +60,78 @@ mod tests {
 
     extern crate plotters;
 
+    use legos_curve_fitting::linear_regression;
+    use legos_utils::function;
     use plotters::prelude::*;
     use std::time::Instant;
 
     #[test]
     fn time_complexity() {
         // Get runtimes
-        let num_samples = 12u32;
-        let mut runtimes = vec![];
-        for n in 0..num_samples {
-            let before = Instant::now();
-            power_set_of(&(0..n).collect(), 0, &vec![]);
-            let after = Instant::now();
-            let duration_as_nanos = after.duration_since(before).as_nanos();
-            runtimes.push(duration_as_nanos as f32);
-            // println!("n={}, t={}ns", n, duration_as_nanos);
-        }
-        // Normalize runtimes
+        let num_samples = 15u32;
+        let offset = 5u32;
+        let runtimes = (offset..(offset + num_samples))
+            .map(|n| {
+                let before = Instant::now();
+                power_set_of(&(0..n).collect(), 0, &vec![]);
+                let after = Instant::now();
+                let duration_as_nanos = after.duration_since(before).as_nanos();
+                duration_as_nanos as f32
+                // println!("n={}, t={}ns", n, duration_as_nanos);
+            })
+            .collect::<Vec<f32>>();
+
+        // Normalize samples
         let runtimes_norm = runtimes.iter().map(|&x| x * x).sum::<f32>().sqrt();
-        let normalized_runtimes = runtimes
+        let normalized_samples = runtimes
             .iter()
             .map(|&x| x / runtimes_norm)
-            .collect::<Vec<f32>>();
-        // Prepare samples for plotting
-        let mut normalized_samples = vec![];
-        for (i, &runtime) in normalized_runtimes.iter().enumerate() {
-            normalized_samples.push(((i as f32) / (num_samples as f32), runtime));
-        }
+            .enumerate()
+            .map(|(i, runtime)| ((i as f32) / (num_samples as f32), runtime))
+            .collect::<Vec<(f32, f32)>>();
+
+        // FIXME: impl a exponential curve fitter to verify time complexity and visualize it
+        let log_normalized_samples = normalized_samples
+            .iter()
+            .map(|(x, y)| (*x, y.log(std::f32::consts::E)))
+            .collect::<Vec<(f32, f32)>>();
+        let (intercept, slope, sum_squared_residuals) =
+            linear_regression(&log_normalized_samples).unwrap();
+
         // Plot
-        let img_path = format!("test_logs/{}::time_complexity.png", module_path!());
+        let img_path = format!("test_logs/{}.png", function!());
         let img = BitMapBackend::new(&img_path, (900, 900)).into_drawing_area();
-        img.fill(&WHITE).unwrap();
+        img.fill(&YELLOW).unwrap();
         let mut chart = ChartBuilder::on(&img)
+            .caption(
+                format!(
+                    "fit = {} * e^{}x, sum squared residuals = {}",
+                    intercept.exp(),
+                    slope,
+                    sum_squared_residuals
+                ),
+                ("Arial", 20),
+            )
             .set_label_area_size(LabelAreaPosition::Left, 30)
             .set_label_area_size(LabelAreaPosition::Bottom, 30)
             .build_ranged(0f32..1f32, 0f32..1f32)
             .unwrap();
         chart.configure_mesh().draw().unwrap();
         chart
-            .draw_series(LineSeries::new(normalized_samples, &RED))
+            .draw_series(LineSeries::new(normalized_samples.clone(), &RED))
             .unwrap()
             .label("power set")
             .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], &RED));
+        chart
+            .draw_series(LineSeries::new(
+                (0..=50)
+                    .map(|x| x as f32 / 50.0)
+                    .map(|x| (x, (intercept + x * slope).exp())),
+                &BLACK,
+            ))
+            .unwrap()
+            .label("power set fit")
+            .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], &BLACK));
         chart
             .draw_series(LineSeries::new(
                 (0..=50).map(|x| (x as f32 / 50.0, x as f32 / 50.0)),
@@ -124,6 +154,5 @@ mod tests {
             .border_style(&BLACK)
             .draw()
             .unwrap();
-        // FIXME: impl a exponential curve fitter to verify time complexity and visualize it
     }
 }
