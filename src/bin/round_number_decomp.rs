@@ -2,7 +2,7 @@
 
 use std::io::{self, BufRead};
 
-fn decompose_as_round_numbers(num: u32) {
+fn decompose_as_round_numbers(num: u32) -> Vec<u32> {
     let mut rem = num;
     let mut round_numbers: Vec<u32> = vec![];
     let mut place_value = 1;
@@ -16,11 +16,7 @@ fn decompose_as_round_numbers(num: u32) {
         place_value *= 10;
         rem /= 10;
     }
-    println!("{:?}", round_numbers.len());
-    for round_number in round_numbers.into_iter() {
-        print!("{:?} ", round_number);
-    }
-    println!();
+    round_numbers
 }
 
 fn main() {
@@ -35,8 +31,28 @@ fn main() {
     }
     // println!("{:?}", inputs);
     for input in inputs.into_iter() {
-        decompose_as_round_numbers(input);
+        let round_numbers = decompose_as_round_numbers(input);
+        println!("{:?}", round_numbers.len());
+        for round_number in round_numbers.into_iter() {
+            print!("{:?} ", round_number);
+        }
+        println!();
     }
 }
 
-// FIXME: add tests
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn provided_testcase() {
+        assert_eq!(decompose_as_round_numbers(5009u32), vec![9u32, 5000]);
+        assert_eq!(decompose_as_round_numbers(7u32), vec![7u32]);
+        assert_eq!(
+            decompose_as_round_numbers(9876u32),
+            vec![6u32, 70, 800, 9000]
+        );
+        assert_eq!(decompose_as_round_numbers(10000u32), vec![10000u32]);
+        assert_eq!(decompose_as_round_numbers(10u32), vec![10u32]);
+    }
+}
