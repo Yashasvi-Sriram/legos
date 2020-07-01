@@ -7,5 +7,4 @@ edition = "2018"
 [dev-dependencies]
 legos_curve_fitting = { path = "legos_curve_fitting", version = "0.1.0" }
 legos_utils = { path = "legos_utils", version = "0.1.0" }
-plotters = "0.2.15"
-
+gnuplot = "0.0.37"

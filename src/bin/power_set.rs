@@ -58,101 +58,134 @@ mod tests {
         );
     }
 
-    extern crate plotters;
+    extern crate gnuplot;
 
+    use gnuplot::*;
     use legos_curve_fitting::linear_regression;
     use legos_utils::function;
-    use plotters::prelude::*;
     use std::time::Instant;
 
     #[test]
-    fn time_complexity() {
+    fn is_runtime_exponential() {
         // Get runtimes
-        let num_samples = 15u32;
         let offset = 5u32;
-        let runtimes = (offset..(offset + num_samples))
+        let num_sizes = 10u32;
+        let num_iterations = 10u32;
+        let mut sum_squared_runtimes = 0f32;
+        let runtimes = (offset..(offset + num_sizes))
             .map(|n| {
-                let before = Instant::now();
-                power_set_of(&(0..n).collect(), 0, &vec![]);
-                let after = Instant::now();
-                let duration_as_nanos = after.duration_since(before).as_nanos();
-                duration_as_nanos as f32
-                // println!("n={}, t={}ns", n, duration_as_nanos);
+                let size_n_runtimes = (0..num_iterations)
+                    .map(|_| {
+                        let before = Instant::now();
+                        power_set_of(&(0..n).collect(), 0, &vec![]);
+                        let after = Instant::now();
+                        let duration_as_nanos = after.duration_since(before).as_nanos();
+                        let duration = duration_as_nanos as f32;
+                        sum_squared_runtimes = duration * duration;
+                        duration
+                    })
+                    .collect::<Vec<f32>>();
+                size_n_runtimes
             })
-            .collect::<Vec<f32>>();
+            .collect::<Vec<Vec<f32>>>();
 
-        // Normalize samples
-        let runtimes_norm = runtimes.iter().map(|&x| x * x).sum::<f32>().sqrt();
+        // Normalize and log samples
+        let runtimes_norm = sum_squared_runtimes.sqrt();
         let normalized_samples = runtimes
             .iter()
-            .map(|&x| x / runtimes_norm)
+            .map(|runtimes| {
+                runtimes
+                    .iter()
+                    .map(|&runtime| runtime / runtimes_norm)
+                    .collect::<Vec<f32>>()
+            })
             .enumerate()
-            .map(|(i, runtime)| ((i as f32) / (num_samples as f32), runtime))
-            .collect::<Vec<(f32, f32)>>();
-
-        // FIXME: impl a exponential curve fitter to verify time complexity and visualize it
+            .map(|(i, runtime)| ((i as f32) / (num_sizes as f32), runtime))
+            .collect::<Vec<(f32, Vec<f32>)>>();
         let log_normalized_samples = normalized_samples
             .iter()
-            .map(|(x, y)| (*x, y.log(std::f32::consts::E)))
-            .collect::<Vec<(f32, f32)>>();
+            .map(|(x, ys)| {
+                (
+                    *x,
+                    ys.iter()
+                        .map(|&y| y.log(std::f32::consts::E))
+                        .collect::<Vec<f32>>(),
+                )
+            })
+            .collect::<Vec<(f32, Vec<f32>)>>();
+
+        // FIXME:
+        // - [x] impl a exponential curve fitter use linear regression on log values
+        // - [ ] verify fit by
+        //      for each i ( mean_over_j (T_j(i) - T_hat(i)) < th_1 )
+        //      MSE < N * (th_2)
+        //      use exponenetiated losses
+        // - [x] visualize; need interactive better graphs
         let (intercept, slope, sum_squared_residuals) =
             linear_regression(&log_normalized_samples).unwrap();
 
         // Plot
-        let img_path = format!("test_logs/{}.png", function!());
-        let img = BitMapBackend::new(&img_path, (900, 900)).into_drawing_area();
-        img.fill(&YELLOW).unwrap();
-        let mut chart = ChartBuilder::on(&img)
-            .caption(
-                format!(
-                    "fit = {} * e^{}x, sum squared residuals = {}",
-                    intercept.exp(),
-                    slope,
-                    sum_squared_residuals
-                ),
-                ("Arial", 20),
+        let flattened_samples = normalized_samples
+            .iter()
+            .map(|(size, samples)| {
+                samples
+                    .iter()
+                    .map(|&sample| (*size, sample))
+                    .collect::<Vec<(f32, f32)>>()
+            })
+            .flatten()
+            .collect::<Vec<(f32, f32)>>();
+        let residues = normalized_samples
+            .iter()
+            .map(|(x, ys)| {
+                ys.iter()
+                    .map(|&y| (*x, y - ((intercept + x * slope).exp())))
+                    .collect::<Vec<(f32, f32)>>()
+            })
+            .flatten()
+            .collect::<Vec<(f32, f32)>>();
+
+        let mut fg = Figure::new();
+        fg.axes2d()
+            .points(
+                flattened_samples.iter().map(|(x, _)| x),
+                flattened_samples.iter().map(|(_, y)| y),
+                &[
+                    Caption("samples"),
+                    PointSymbol('O'),
+                    Color("red"),
+                    PointSize(0.25),
+                ],
             )
-            .set_label_area_size(LabelAreaPosition::Left, 30)
-            .set_label_area_size(LabelAreaPosition::Bottom, 30)
-            .build_ranged(0f32..1f32, 0f32..1f32)
-            .unwrap();
-        chart.configure_mesh().draw().unwrap();
-        chart
-            .draw_series(LineSeries::new(normalized_samples.clone(), &RED))
-            .unwrap()
-            .label("power set")
-            .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], &RED));
-        chart
-            .draw_series(LineSeries::new(
+            .lines(
+                (0..=50).map(|x| x as f32 / 50.0),
                 (0..=50)
                     .map(|x| x as f32 / 50.0)
-                    .map(|x| (x, (intercept + x * slope).exp())),
-                &BLACK,
-            ))
-            .unwrap()
-            .label("power set fit")
-            .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], &BLACK));
-        chart
-            .draw_series(LineSeries::new(
-                (0..=50).map(|x| (x as f32 / 50.0, x as f32 / 50.0)),
-                &GREEN,
-            ))
-            .unwrap()
-            .label("y = x")
-            .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], &GREEN));
-        chart
-            .draw_series(LineSeries::new(
-                (0..=50).map(|x| x as f32 / 50.0).map(|x| (x, x * x)),
-                &BLUE,
-            ))
-            .unwrap()
-            .label("y = x^2")
-            .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], &BLUE));
-        chart
-            .configure_series_labels()
-            .background_style(&WHITE.mix(0.8))
-            .border_style(&BLACK)
-            .draw()
-            .unwrap();
+                    .map(|x| (intercept + x * slope).exp()),
+                &[Caption("fit"), LineWidth(1.0), Color("black")],
+            )
+            .points(
+                residues.iter().map(|(x, _)| x),
+                residues.iter().map(|(_, y)| y),
+                &[
+                    Caption("residues"),
+                    PointSymbol('o'),
+                    Color("magenta"),
+                    PointSize(0.25),
+                ],
+            )
+            .set_x_label("scaled problem size", &[])
+            .set_y_label("scaled runtime", &[])
+            .set_legend(
+                Graph(0.5),
+                Graph(0.9),
+                &[Placement(AlignCenter, AlignTop)],
+                &[TextAlign(AlignRight)],
+            )
+            .set_title(
+                &format!("fit: y = {}e^{{ {} x}}", intercept.exp(), slope),
+                &[],
+            );
+        fg.echo_to_file(&format!("test_logs/{}.gnuplot", function!()));
     }
 }
