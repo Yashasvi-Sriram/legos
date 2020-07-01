@@ -112,13 +112,6 @@ mod tests {
             .collect::<Vec<(f32, Vec<f32>)>>();
 
         // Fit
-        // FIXME:
-        // - [x] impl a exponential curve fitter use linear regression on log values
-        // - [ ] verify fit by
-        //      for each i ( mean_over_j (T_j(i) - T_hat(i)) < th_1 )
-        //      MSE < N * (th_2)
-        //      use exponenetiated losses
-        // - [x] visualize; need interactive better graphs
         let log_normalized_samples = normalized_samples
             .iter()
             .map(|(x, ys)| {
@@ -136,28 +129,34 @@ mod tests {
             .flatten()
             .collect::<Vec<(f32, f32)>>();
         let (intercept, slope) = linear_regression(&flattened_log_normalized_samples).unwrap();
-        let sum_sqaured_residuals = normalized_samples
-            .iter()
-            .map(|(x, ys)| {
-                ys.iter()
-                    .map(|&y| y - (intercept + slope * *x).exp())
-                    .map(|y| y * y)
-                    .sum::<f32>()
-            })
-            .sum::<f32>();
-        let max_abs_means_of_residuals = {
-            let abs_means_of_residuals = normalized_samples
+        let sqrt_mean_squared_residuals = {
+            let sum_squared_residuals = normalized_samples
                 .iter()
                 .map(|(x, ys)| {
                     ys.iter()
                         .map(|&y| y - (intercept + slope * *x).exp())
+                        .map(|y| y * y)
                         .sum::<f32>()
-                        .abs()
-                        / ys.len() as f32
                 })
+                .sum::<f32>();
+            let mean_squared_residuals = sum_squared_residuals / normalized_samples.len() as f32;
+            mean_squared_residuals.sqrt()
+        };
+        let max_abs_medians_residuals = {
+            let abs_median_residuals = normalized_samples
+                .iter()
+                .map(|(x, ys)| {
+                    let mut residuals_at_x = ys
+                        .iter()
+                        .map(|&y| y - (intercept + slope * *x).exp())
+                        .collect::<Vec<f32>>();
+                    residuals_at_x.sort_by(|a, b| a.partial_cmp(b).unwrap());
+                    residuals_at_x[residuals_at_x.len() / 2]
+                })
+                .map(|signed_median| signed_median.abs())
                 .collect::<Vec<f32>>();
             let mut max = f32::NEG_INFINITY;
-            for &mean in abs_means_of_residuals.iter() {
+            for &mean in abs_median_residuals.iter() {
                 if mean > max {
                     max = mean;
                 }
@@ -230,20 +229,20 @@ mod tests {
                 &format!(
                     "
                     fit: y = {}e^{{ {} x}}
-                    sum(residual^2) = {}
-                    max(abs(mean(residual_i))) = {}
+                    sqrt(mean(residual^2)) = {}
+                    max(abs(median(residual_i))) = {}
                     ",
                     intercept.exp(),
                     slope,
-                    sum_sqaured_residuals,
-                    max_abs_means_of_residuals
+                    sqrt_mean_squared_residuals,
+                    max_abs_medians_residuals
                 ),
                 &[],
             );
         fg.echo_to_file(&format!("test_logs/{}.gnuplot", function!()));
 
         // Asserts
-        assert!(sum_sqaured_residuals < 1e-2);
-        assert!(max_abs_means_of_residuals < 1e-2);
+        assert!(sqrt_mean_squared_residuals < 1e-1);
+        assert!(max_abs_medians_residuals < 1e-2);
     }
 }
