@@ -70,9 +70,8 @@ mod tests {
         // Get runtimes
         let offset = 5u32;
         let num_sizes = 10u32;
-        let num_iterations = 10u32;
-        let mut sum_squared_runtimes = 0f32;
-        let runtimes = (offset..(offset + num_sizes))
+        let num_iterations = 20u32;
+        let sizewise_samples = (offset..(offset + num_sizes))
             .map(|n| {
                 let size_n_runtimes = (0..num_iterations)
                     .map(|_| {
@@ -81,7 +80,6 @@ mod tests {
                         let after = Instant::now();
                         let duration_as_nanos = after.duration_since(before).as_nanos();
                         let duration = duration_as_nanos as f32;
-                        sum_squared_runtimes = duration * duration;
                         duration
                     })
                     .collect::<Vec<f32>>();
@@ -90,8 +88,18 @@ mod tests {
             .collect::<Vec<Vec<f32>>>();
 
         // Normalize and log samples
-        let runtimes_norm = sum_squared_runtimes.sqrt();
-        let normalized_samples = runtimes
+        let runtimes_norm = sizewise_samples
+            .iter()
+            .map(|runtimes| {
+                runtimes
+                    .iter()
+                    .map(|&runtime| runtime * runtime)
+                    .collect::<Vec<f32>>()
+            })
+            .flatten()
+            .sum::<f32>()
+            .sqrt();
+        let normalized_samples = sizewise_samples
             .iter()
             .map(|runtimes| {
                 runtimes
@@ -102,6 +110,15 @@ mod tests {
             .enumerate()
             .map(|(i, runtime)| ((i as f32) / (num_sizes as f32), runtime))
             .collect::<Vec<(f32, Vec<f32>)>>();
+
+        // Fit
+        // FIXME:
+        // - [x] impl a exponential curve fitter use linear regression on log values
+        // - [ ] verify fit by
+        //      for each i ( mean_over_j (T_j(i) - T_hat(i)) < th_1 )
+        //      MSE < N * (th_2)
+        //      use exponenetiated losses
+        // - [x] visualize; need interactive better graphs
         let log_normalized_samples = normalized_samples
             .iter()
             .map(|(x, ys)| {
@@ -113,19 +130,43 @@ mod tests {
                 )
             })
             .collect::<Vec<(f32, Vec<f32>)>>();
-
-        // FIXME:
-        // - [x] impl a exponential curve fitter use linear regression on log values
-        // - [ ] verify fit by
-        //      for each i ( mean_over_j (T_j(i) - T_hat(i)) < th_1 )
-        //      MSE < N * (th_2)
-        //      use exponenetiated losses
-        // - [x] visualize; need interactive better graphs
-        let (intercept, slope, sum_squared_residuals) =
-            linear_regression(&log_normalized_samples).unwrap();
+        let flattened_log_normalized_samples = log_normalized_samples
+            .iter()
+            .map(|(x, ys)| ys.iter().map(|&y| (*x, y)).collect::<Vec<(f32, f32)>>())
+            .flatten()
+            .collect::<Vec<(f32, f32)>>();
+        let (intercept, slope) = linear_regression(&flattened_log_normalized_samples).unwrap();
+        let sum_sqaured_residuals = normalized_samples
+            .iter()
+            .map(|(x, ys)| {
+                ys.iter()
+                    .map(|&y| y - (intercept + slope * *x).exp())
+                    .map(|y| y * y)
+                    .sum::<f32>()
+            })
+            .sum::<f32>();
+        let max_abs_means_of_residuals = {
+            let abs_means_of_residuals = normalized_samples
+                .iter()
+                .map(|(x, ys)| {
+                    ys.iter()
+                        .map(|&y| y - (intercept + slope * *x).exp())
+                        .sum::<f32>()
+                        .abs()
+                        / ys.len() as f32
+                })
+                .collect::<Vec<f32>>();
+            let mut max = f32::NEG_INFINITY;
+            for &mean in abs_means_of_residuals.iter() {
+                if mean > max {
+                    max = mean;
+                }
+            }
+            max
+        };
 
         // Plot
-        let flattened_samples = normalized_samples
+        let flattened_normalized_samples = normalized_samples
             .iter()
             .map(|(size, samples)| {
                 samples
@@ -148,13 +189,13 @@ mod tests {
         let mut fg = Figure::new();
         fg.axes2d()
             .points(
-                flattened_samples.iter().map(|(x, _)| x),
-                flattened_samples.iter().map(|(_, y)| y),
+                flattened_normalized_samples.iter().map(|(x, _)| x),
+                flattened_normalized_samples.iter().map(|(_, y)| y),
                 &[
                     Caption("samples"),
-                    PointSymbol('O'),
-                    Color("red"),
-                    PointSize(0.25),
+                    PointSymbol('x'),
+                    Color("blue"),
+                    PointSize(0.5),
                 ],
             )
             .lines(
@@ -169,9 +210,9 @@ mod tests {
                 residues.iter().map(|(_, y)| y),
                 &[
                     Caption("residues"),
-                    PointSymbol('o'),
-                    Color("magenta"),
-                    PointSize(0.25),
+                    PointSymbol('x'),
+                    Color("red"),
+                    PointSize(0.5),
                 ],
             )
             .set_x_label("scaled problem size", &[])
@@ -182,10 +223,27 @@ mod tests {
                 &[Placement(AlignCenter, AlignTop)],
                 &[TextAlign(AlignRight)],
             )
+            .set_grid_options(true, &[LineStyle(SmallDot), Color("black")])
+            .set_x_grid(true)
+            .set_y_grid(true)
             .set_title(
-                &format!("fit: y = {}e^{{ {} x}}", intercept.exp(), slope),
+                &format!(
+                    "
+                    fit: y = {}e^{{ {} x}}
+                    sum(residual^2) = {}
+                    max(abs(mean(residual_i))) = {}
+                    ",
+                    intercept.exp(),
+                    slope,
+                    sum_sqaured_residuals,
+                    max_abs_means_of_residuals
+                ),
                 &[],
             );
         fg.echo_to_file(&format!("test_logs/{}.gnuplot", function!()));
+
+        // Asserts
+        assert!(sum_sqaured_residuals < 1e-2);
+        assert!(max_abs_means_of_residuals < 1e-2);
     }
 }
