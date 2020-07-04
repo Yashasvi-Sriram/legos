@@ -67,10 +67,13 @@ mod tests {
 
     #[test]
     fn is_runtime_exponential() {
-        // Get runtimes
+        // Parameters
         let offset = 5u32;
         let num_sizes = 10u32;
         let num_iterations = 20u32;
+        let rms_threshold = 1e-1;
+        let mam_threshold = 1e-2;
+        // Get runtimes
         let sizewise_samples = (offset..(offset + num_sizes))
             .map(|n| {
                 let size_n_runtimes = (0..num_iterations)
@@ -229,20 +232,28 @@ mod tests {
                 &format!(
                     "
                     fit: y = {}e^{{ {} x}}
-                    sqrt(mean(residual^2)) = {}
-                    max(abs(median(residual_i))) = {}
+                    sqrt(mean(residual^2)) = {}, threshold = {}
+                    max(abs(median(residual_i))) = {}, threshold = {}
                     ",
                     intercept.exp(),
                     slope,
                     sqrt_mean_squared_residuals,
-                    max_abs_medians_residuals
+                    rms_threshold,
+                    max_abs_medians_residuals,
+                    mam_threshold
                 ),
                 &[],
             );
         fg.echo_to_file(&format!("test_logs/{}.gnuplot", function!()));
 
         // Asserts
-        assert!(sqrt_mean_squared_residuals < 1e-1);
-        assert!(max_abs_medians_residuals < 1e-2);
+        assert!(
+            sqrt_mean_squared_residuals < rms_threshold,
+            "Possible problems: The function might be inappropriate for the data or the noise might have a high variance."
+        );
+        assert!(
+            max_abs_medians_residuals < mam_threshold,
+            "Possible problems: There may be pattern in residues."
+        );
     }
 }

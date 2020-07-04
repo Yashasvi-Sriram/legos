@@ -5,6 +5,6 @@ authors = ["Yashasvi Sriram Patkuri <yash.3997@gmail.com>"]
 edition = "2018"
 
 [dev-dependencies]
-legos_curve_fitting = { path = "legos_curve_fitting", version = "0.1.0" }
-legos_utils = { path = "legos_utils", version = "0.1.0" }
+legos_curve_fitting = { path = "legos_curve_fitting" }
+legos_utils = { path = "legos_utils" }
 gnuplot = "0.0.37"
