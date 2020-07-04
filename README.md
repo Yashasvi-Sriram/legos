@@ -8,6 +8,7 @@
 - Each crate under `src/bin` corresponds to exactly one problem.
 - There is no dependency b/w any two crates
 - Unit testing is used to add manual test cases for correctness and speed-improvements.
+- `legos_*` are path dependency crates and are used as dev-dependencies (for testing purposes) only.
 
 ## documentation
 - The documentation of the code is itself.
