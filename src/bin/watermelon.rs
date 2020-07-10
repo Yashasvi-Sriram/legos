@@ -1,4 +1,4 @@
-// https://codeforces.com/contest/4/problem/A
+//! <https://codeforces.com/contest/4/problem/A>
 
 use std::io::{self, Read};
 

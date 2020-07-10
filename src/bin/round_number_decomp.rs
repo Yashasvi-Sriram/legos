@@ -1,4 +1,4 @@
-// https://codeforces.com/problemset/problem/1352/A
+//! <https://codeforces.com/problemset/problem/1352/A>
 
 use std::io::{self, BufRead};
 
