@@ -12,6 +12,7 @@
 
 ## documentation
 - The documentation of the code is itself.
+- For things that can not be expressed in code (notes, proofs ...), there is minimal documentation.
 
 ## usage
 - Use `cargo run --bin <crate>` to run (the main function of, not the tests) a crate.
