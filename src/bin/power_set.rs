@@ -113,13 +113,15 @@ mod tests {
             })
             .flatten()
             .collect::<Vec<(f32, f32)>>();
+
+        // Fit
         let log_normalized_samples = normalized_samples
             .iter()
             .map(|(x, y)| (*x, y.log(std::f32::consts::E)))
             .collect::<Vec<(f32, f32)>>();
-
-        // Fit
         let (intercept, slope) = linear_regression(&log_normalized_samples).unwrap();
+
+        // Errors
         let residues = normalized_samples
             .iter()
             .map(|(x, y)| (*x, y - ((intercept + x * slope).exp())))
