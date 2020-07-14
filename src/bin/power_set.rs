@@ -68,30 +68,30 @@ mod tests {
     #[test]
     fn is_runtime_exponential() {
         // Parameters
-        let offset = 5u32;
-        let num_sizes = 10u32;
-        let num_iterations = 20u32;
+        let offset = 5usize;
+        let num_samples = 10usize;
+        let num_iterations = 20usize;
         let rms_threshold = 1e-1;
         let mam_threshold = 1e-2;
+
         // Get runtimes
-        let sizewise_samples = (offset..(offset + num_sizes))
+        let samples = (offset..(offset + num_samples))
             .map(|n| {
-                let size_n_runtimes = (0..num_iterations)
+                (0..num_iterations)
                     .map(|_| {
                         let before = Instant::now();
-                        power_set_of(&(0..n).collect(), 0, &vec![]);
+                        power_set_of(&(0..(n as u32)).collect(), 0, &vec![]);
                         let after = Instant::now();
                         let duration_as_nanos = after.duration_since(before).as_nanos();
                         let duration = duration_as_nanos as f32;
                         duration
                     })
-                    .collect::<Vec<f32>>();
-                size_n_runtimes
+                    .collect::<Vec<f32>>()
             })
             .collect::<Vec<Vec<f32>>>();
 
         // Normalize and log samples
-        let runtimes_norm = sizewise_samples
+        let runtimes_norm = samples
             .iter()
             .map(|runtimes| {
                 runtimes
@@ -102,64 +102,46 @@ mod tests {
             .flatten()
             .sum::<f32>()
             .sqrt();
-        let normalized_samples = sizewise_samples
+        let normalized_samples = samples
             .iter()
-            .map(|runtimes| {
+            .enumerate()
+            .map(|(i, runtimes)| {
                 runtimes
                     .iter()
-                    .map(|&runtime| runtime / runtimes_norm)
-                    .collect::<Vec<f32>>()
+                    .map(|&runtime| ((i as f32) / (num_samples as f32), runtime / runtimes_norm))
+                    .collect::<Vec<(f32, f32)>>()
             })
-            .enumerate()
-            .map(|(i, runtime)| ((i as f32) / (num_sizes as f32), runtime))
-            .collect::<Vec<(f32, Vec<f32>)>>();
-
-        // Fit
-        let log_normalized_samples = normalized_samples
-            .iter()
-            .map(|(x, ys)| {
-                (
-                    *x,
-                    ys.iter()
-                        .map(|&y| y.log(std::f32::consts::E))
-                        .collect::<Vec<f32>>(),
-                )
-            })
-            .collect::<Vec<(f32, Vec<f32>)>>();
-        let flattened_log_normalized_samples = log_normalized_samples
-            .iter()
-            .map(|(x, ys)| ys.iter().map(|&y| (*x, y)).collect::<Vec<(f32, f32)>>())
             .flatten()
             .collect::<Vec<(f32, f32)>>();
-        let (intercept, slope) = linear_regression(&flattened_log_normalized_samples).unwrap();
-        let sqrt_mean_squared_residuals = {
-            let sum_squared_residuals = normalized_samples
-                .iter()
-                .map(|(x, ys)| {
-                    ys.iter()
-                        .map(|&y| y - (intercept + slope * *x).exp())
-                        .map(|y| y * y)
-                        .sum::<f32>()
-                })
-                .sum::<f32>();
-            let mean_squared_residuals = sum_squared_residuals / normalized_samples.len() as f32;
-            mean_squared_residuals.sqrt()
+        let log_normalized_samples = normalized_samples
+            .iter()
+            .map(|(x, y)| (*x, y.log(std::f32::consts::E)))
+            .collect::<Vec<(f32, f32)>>();
+
+        // Fit
+        let (intercept, slope) = linear_regression(&log_normalized_samples).unwrap();
+        let residues = normalized_samples
+            .iter()
+            .map(|(x, y)| (*x, y - ((intercept + x * slope).exp())))
+            .collect::<Vec<(f32, f32)>>();
+        let sqrt_mean_squared_residues = {
+            let sum_squared_residues = residues.iter().map(|(_, y)| y * y).sum::<f32>();
+            let mean_squared_residues = sum_squared_residues / num_samples as f32;
+            mean_squared_residues.sqrt()
         };
-        let max_abs_medians_residuals = {
-            let abs_median_residuals = normalized_samples
-                .iter()
-                .map(|(x, ys)| {
-                    let mut residuals_at_x = ys
-                        .iter()
-                        .map(|&y| y - (intercept + slope * *x).exp())
+        let max_abs_medians_residues = {
+            let abs_median_deflatten_residues = (0..num_samples)
+                .map(|sample_i| {
+                    let mut deflattened = (0..num_iterations)
+                        .map(|iter_i| residues[sample_i * num_iterations + iter_i].1)
                         .collect::<Vec<f32>>();
-                    residuals_at_x.sort_by(|a, b| a.partial_cmp(b).unwrap());
-                    residuals_at_x[residuals_at_x.len() / 2]
+                    deflattened.sort_by(|a, b| a.partial_cmp(b).unwrap());
+                    deflattened[deflattened.len() / 2]
                 })
                 .map(|signed_median| signed_median.abs())
                 .collect::<Vec<f32>>();
             let mut max = f32::NEG_INFINITY;
-            for &mean in abs_median_residuals.iter() {
+            for &mean in abs_median_deflatten_residues.iter() {
                 if mean > max {
                     max = mean;
                 }
@@ -168,31 +150,11 @@ mod tests {
         };
 
         // Plot
-        let flattened_normalized_samples = normalized_samples
-            .iter()
-            .map(|(size, samples)| {
-                samples
-                    .iter()
-                    .map(|&sample| (*size, sample))
-                    .collect::<Vec<(f32, f32)>>()
-            })
-            .flatten()
-            .collect::<Vec<(f32, f32)>>();
-        let residues = normalized_samples
-            .iter()
-            .map(|(x, ys)| {
-                ys.iter()
-                    .map(|&y| (*x, y - ((intercept + x * slope).exp())))
-                    .collect::<Vec<(f32, f32)>>()
-            })
-            .flatten()
-            .collect::<Vec<(f32, f32)>>();
-
         let mut fg = Figure::new();
         fg.axes2d()
             .points(
-                flattened_normalized_samples.iter().map(|(x, _)| x),
-                flattened_normalized_samples.iter().map(|(_, y)| y),
+                normalized_samples.iter().map(|(x, _)| x),
+                normalized_samples.iter().map(|(_, y)| y),
                 &[
                     Caption("samples"),
                     PointSymbol('x'),
@@ -232,14 +194,14 @@ mod tests {
                 &format!(
                     "
                     fit: y = {}e^{{ {} x}}
-                    sqrt(mean(residual^2)) = {}, threshold = {}
-                    max(abs(median(residual_i))) = {}, threshold = {}
+                    sqrt(mean(residue_i^2)) = {}, threshold = {}
+                    max(abs(median(residue_i))) = {}, threshold = {}
                     ",
                     intercept.exp(),
                     slope,
-                    sqrt_mean_squared_residuals,
+                    sqrt_mean_squared_residues,
                     rms_threshold,
-                    max_abs_medians_residuals,
+                    max_abs_medians_residues,
                     mam_threshold
                 ),
                 &[],
@@ -248,11 +210,11 @@ mod tests {
 
         // Asserts
         assert!(
-            sqrt_mean_squared_residuals < rms_threshold,
+            sqrt_mean_squared_residues < rms_threshold,
             "Possible problems: The function might be inappropriate for the data or the noise might have a high variance."
         );
         assert!(
-            max_abs_medians_residuals < mam_threshold,
+            max_abs_medians_residues < mam_threshold,
             "Possible problems: There may be pattern in residues."
         );
     }
