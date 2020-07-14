@@ -5,7 +5,7 @@
 /// - Why greedy method works?
 ///     - FIXME
 mod grid {
-    #[derive(Debug, Clone)]
+    #[derive(Debug, Clone, PartialEq, Eq)]
     pub struct Grid {
         num_rows: usize,
         num_cols: usize,
@@ -179,5 +179,79 @@ fn main() {
             }
             None => println!("NO"),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn provided_testcases() {
+        assert_eq!(
+            grid::Grid::new(3, 4, &vec![0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0])
+                .unwrap()
+                .good_version(),
+            Some(grid::Grid::new(3, 4, &vec![0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]).unwrap())
+        );
+        assert_eq!(
+            grid::Grid::new(2, 2, &vec![3, 0, 0, 0])
+                .unwrap()
+                .good_version(),
+            None
+        );
+        assert_eq!(
+            grid::Grid::new(2, 2, &vec![0, 0, 0, 0])
+                .unwrap()
+                .good_version(),
+            Some(grid::Grid::new(2, 2, &vec![0, 0, 0, 0]).unwrap())
+        );
+        assert_eq!(
+            grid::Grid::new(2, 2, &vec![0, 0, 0, 0])
+                .unwrap()
+                .good_version(),
+            Some(grid::Grid::new(2, 2, &vec![0, 0, 0, 0]).unwrap())
+        );
+        assert_eq!(
+            grid::Grid::new(2, 3, &vec![0, 0, 0, 0, 4, 0])
+                .unwrap()
+                .good_version(),
+            None
+        );
+        assert_eq!(
+            grid::Grid::new(4, 4, &vec![0, 0, 0, 0, 0, 2, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0])
+                .unwrap()
+                .good_version(),
+            Some(
+                grid::Grid::new(4, 4, &vec![0, 1, 0, 1, 0, 2, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0])
+                    .unwrap()
+            )
+        );
+    }
+
+    #[test]
+    fn some_of_my_testcases() {
+        assert_eq!(
+            grid::Grid::new(4, 3, &vec![0, 0, 0, 0, 4, 2, 0, 3, 0, 0, 0, 0])
+                .unwrap()
+                .good_version(),
+            Some(grid::Grid::new(4, 3, &vec![0, 2, 2, 2, 4, 2, 2, 3, 0, 0, 1, 0]).unwrap())
+        );
+        assert_eq!(
+            grid::Grid::new(1, 1, &vec![0]).unwrap().good_version(),
+            Some(grid::Grid::new(1, 1, &vec![0]).unwrap())
+        );
+        assert_eq!(
+            grid::Grid::new(1, 1, &vec![1]).unwrap().good_version(),
+            None
+        );
+        assert_eq!(
+            grid::Grid::new(1, 2, &vec![1, 0]).unwrap().good_version(),
+            Some(grid::Grid::new(1, 2, &vec![1, 1]).unwrap())
+        );
+        assert_eq!(
+            grid::Grid::new(1, 2, &vec![1, 2]).unwrap().good_version(),
+            None
+        );
     }
 }

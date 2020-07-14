@@ -13,6 +13,8 @@
 ## documentation
 - The documentation of the code is itself.
 - For things that can not be expressed in code (notes, proofs ...), there is minimal documentation.
+    - It can be read as-is from source code.
+    - Or `cargo doc && cargo doc --open` can be used to view it in HTML form.
 
 ## usage
 - Use `cargo run --bin <crate>` to run (the main function of, not the tests) a crate.
