@@ -54,20 +54,15 @@ name = "legos"
 version = "0.1.0"
 dependencies = [
  "gnuplot 0.0.37 (registry+https://github.com/rust-lang/crates.io-index)",
- "legos_curve_fitting 0.1.0",
- "legos_utils 0.1.0",
+ "legos_test_tools 0.1.0",
 ]
 
 [[package]]
-name = "legos_curve_fitting"
+name = "legos_test_tools"
 version = "0.1.0"
 dependencies = [
  "nalgebra 0.21.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
-
-[[package]]
-name = "legos_utils"
-version = "0.1.0"
 
 [[package]]
 name = "libc"

@@ -61,8 +61,7 @@ mod tests {
     extern crate gnuplot;
 
     use gnuplot::*;
-    use legos_curve_fitting::linear_regression;
-    use legos_utils::function;
+    use legos_test_tools::{function, linear_regression};
     use std::time::Instant;
 
     #[test]
