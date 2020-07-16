@@ -1,12 +1,12 @@
 mod data;
-use data::{get_inventory, KnapsackItem};
+use data::{Input, KnapsackItem};
 
 mod exponential;
 mod exponential_with_pruning;
 mod exponential_with_pruning_and_implicit_comparision;
 
 fn main() {
-    let (capacity, inventory) = get_inventory(22);
+    let (capacity, inventory) = Input::full();
     exponential::pack(capacity, &inventory, true);
     exponential_with_pruning::pack(capacity, &inventory, true);
     exponential_with_pruning_and_implicit_comparision::pack(capacity, &inventory, true);
@@ -18,65 +18,42 @@ mod tests {
 
     #[test]
     fn exponential() {
-        let (capacity, inventory) = get_inventory(22);
+        let (capacity, inventory) = Input::full();
         let best_combination = exponential::pack(capacity, &inventory, false);
         assert_eq!(
-            vec![9, 13, 153, 50, 15, 27, 11, 42, 43, 22, 7, 4],
+            vec![0, 1, 2, 3, 4, 6, 10, 15, 16, 17, 18, 20],
             best_combination
-                .iter()
-                .map(|index| inventory[*index].weight)
-                .collect::<Vec<_>>()
-        );
-        assert_eq!(
-            vec![150, 35, 200, 160, 60, 60, 70, 70, 75, 80, 20, 50],
-            best_combination
-                .iter()
-                .map(|index| inventory[*index].value)
-                .collect::<Vec<_>>()
         );
     }
 
     #[test]
     fn exponential_with_pruning() {
-        let (capacity, inventory) = get_inventory(22);
+        let (capacity, inventory) = Input::full();
         let best_combination = exponential_with_pruning::pack(capacity, &inventory, false);
         assert_eq!(
-            vec![9, 13, 153, 50, 15, 27, 11, 42, 43, 22, 7, 4],
+            vec![0, 1, 2, 3, 4, 6, 10, 15, 16, 17, 18, 20],
             best_combination
-                .iter()
-                .map(|index| inventory[*index].weight)
-                .collect::<Vec<_>>()
-        );
-        assert_eq!(
-            vec![150, 35, 200, 160, 60, 60, 70, 70, 75, 80, 20, 50],
-            best_combination
-                .iter()
-                .map(|index| inventory[*index].value)
-                .collect::<Vec<_>>()
         );
     }
 
     #[test]
     fn exponential_with_pruning_and_implicit_comparision() {
-        let (capacity, inventory) = get_inventory(22);
+        let (capacity, inventory) = Input::full();
         let best_combination =
             exponential_with_pruning_and_implicit_comparision::pack(capacity, &inventory, false);
         assert_eq!(
-            vec![9, 13, 153, 50, 15, 27, 11, 42, 43, 22, 7, 4],
+            vec![0, 1, 2, 3, 4, 6, 10, 15, 16, 17, 18, 20],
             best_combination
-                .iter()
-                .map(|index| inventory[*index].weight)
-                .collect::<Vec<_>>()
-        );
-        assert_eq!(
-            vec![150, 35, 200, 160, 60, 60, 70, 70, 75, 80, 20, 50],
-            best_combination
-                .iter()
-                .map(|index| inventory[*index].value)
-                .collect::<Vec<_>>()
         );
     }
 
+    extern crate gnuplot;
+
+    use gnuplot::*;
+    use legos_test_tools::fitting::linear_regression;
+    use legos_test_tools::function_path;
+    use legos_test_tools::postprocessing::{max_abs_median_batched, sqrt_mean_squared};
+    use legos_test_tools::preprocessing::pretty_scale;
     use std::time::Instant;
 
     #[test]
@@ -92,14 +69,13 @@ mod tests {
         // Get runtimes
         let samples = (offset..(offset + num_sampling_points))
             .map(|n| {
+                let (capacity, inventory) = Input::of_size(n);
                 (0..batch_size)
                     .map(|_| {
-                        let (capacity, inventory) = get_inventory(n);
                         let before = Instant::now();
-                        let best_combination =
-                            exponential_with_pruning_and_implicit_comparision::pack(
-                                capacity, &inventory, false,
-                            );
+                        exponential_with_pruning_and_implicit_comparision::pack(
+                            capacity, &inventory, false,
+                        );
                         let after = Instant::now();
                         let duration_as_nanos = after.duration_since(before).as_nanos();
                         let duration = duration_as_nanos as f32;
@@ -109,20 +85,93 @@ mod tests {
             })
             .flatten()
             .collect::<Vec<_>>();
-        println!("{:?}", samples);
-        // assert_eq!(
-        //     vec![9, 13, 153, 50, 15, 27, 11, 42, 43, 22, 7, 4],
-        //     best_combination
-        //         .iter()
-        //         .map(|index| inventory[*index].weight)
-        //         .collect::<Vec<_>>()
-        // );
-        // assert_eq!(
-        //     vec![150, 35, 200, 160, 60, 60, 70, 70, 75, 80, 20, 50],
-        //     best_combination
-        //         .iter()
-        //         .map(|index| inventory[*index].value)
-        //         .collect::<Vec<_>>()
-        // );
+
+        // Normalize and log samples
+        let normalized_samples = pretty_scale(&samples, batch_size);
+
+        // Fit
+        let log_normalized_samples = normalized_samples
+            .iter()
+            .map(|(x, y)| (*x, y.log(std::f32::consts::E)))
+            .collect::<Vec<_>>();
+        let (intercept, slope) = linear_regression(&log_normalized_samples).unwrap();
+
+        // Errors
+        let residues = normalized_samples
+            .iter()
+            .map(|(x, y_observed)| y_observed - (intercept + x * slope).exp())
+            .collect::<Vec<_>>();
+
+        let sqrt_mean_squared_residues = sqrt_mean_squared(&residues);
+        let max_abs_medians_residues = max_abs_median_batched(&residues, batch_size);
+
+        // Plot
+        let mut fg = Figure::new();
+        fg.axes2d()
+            .points(
+                normalized_samples.iter().map(|(x, _)| x),
+                normalized_samples.iter().map(|(_, y)| y),
+                &[
+                    Caption("samples"),
+                    PointSymbol('x'),
+                    Color("blue"),
+                    PointSize(0.5),
+                ],
+            )
+            .lines(
+                (0..=50).map(|x| x as f32 / 50.0),
+                (0..=50)
+                    .map(|x| x as f32 / 50.0)
+                    .map(|x| (intercept + x * slope).exp()),
+                &[Caption("fit"), LineWidth(1.0), Color("black")],
+            )
+            .points(
+                normalized_samples.iter().map(|(x, _)| x),
+                residues.iter(),
+                &[
+                    Caption("residues"),
+                    PointSymbol('x'),
+                    Color("red"),
+                    PointSize(0.5),
+                ],
+            )
+            .set_x_label("scaled problem size", &[])
+            .set_y_label("scaled runtime", &[])
+            .set_legend(
+                Graph(0.5),
+                Graph(0.9),
+                &[Placement(AlignCenter, AlignTop)],
+                &[TextAlign(AlignRight)],
+            )
+            .set_grid_options(true, &[LineStyle(SmallDot), Color("black")])
+            .set_x_grid(true)
+            .set_y_grid(true)
+            .set_title(
+                &format!(
+                    "
+                    fit: y = {}e^{{ {} x}}
+                    sqrt(mean(residue_i^2)) = {}, threshold = {}
+                    max(abs(median(residue_i))) = {}, threshold = {}
+                    ",
+                    intercept.exp(),
+                    slope,
+                    sqrt_mean_squared_residues,
+                    rms_threshold,
+                    max_abs_medians_residues,
+                    mam_threshold
+                ),
+                &[],
+            );
+        fg.echo_to_file(&format!("test_logs/{}.gnuplot", function_path!()));
+
+        // Asserts
+        assert!(
+            sqrt_mean_squared_residues < rms_threshold,
+            "Possible problems: The function might be inappropriate for the data or the noise might have a high variance."
+        );
+        assert!(
+            max_abs_medians_residues < mam_threshold,
+            "Possible problems: There may be pattern in residues."
+        );
     }
 }
