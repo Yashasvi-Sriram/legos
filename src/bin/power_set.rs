@@ -1,4 +1,4 @@
-// FIXME: use ordered set impl instead of assuming vec is a set
+// TODO: use ordered set impl instead of assuming vec is a set
 fn power_set_of(ordered_set: &Vec<u32>, index: usize, parent: &Vec<u32>) -> Vec<Vec<u32>> {
     if index == ordered_set.len() {
         return vec![parent.clone()];
