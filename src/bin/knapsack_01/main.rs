@@ -77,5 +77,8 @@ mod tests {
         );
     }
 
-    // TODO: add test to verify improvement in time complexity and visualize it
+    #[test]
+    fn is_runtime_improved() {
+        // TODO: add test to verify improvement in time complexity and visualize it
+    }
 }

@@ -1,4 +1,5 @@
 pub mod fitting;
+pub mod postprocessing;
 pub mod preprocessing;
 
 #[macro_export]

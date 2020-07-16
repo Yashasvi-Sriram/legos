@@ -63,6 +63,7 @@ mod tests {
     use gnuplot::*;
     use legos_test_tools::fitting::linear_regression;
     use legos_test_tools::function_path;
+    use legos_test_tools::postprocessing::{max_abs_median_batched, sqrt_mean_squared};
     use legos_test_tools::preprocessing::pretty_scale;
     use std::time::Instant;
 
@@ -93,7 +94,7 @@ mod tests {
             .collect::<Vec<f32>>();
 
         // Normalize and log samples
-        let normalized_samples = pretty_scale(&samples, num_sampling_points, batch_size);
+        let normalized_samples = pretty_scale(&samples, batch_size);
 
         // Fit
         let log_normalized_samples = normalized_samples
@@ -105,32 +106,10 @@ mod tests {
         // Errors
         let residues = normalized_samples
             .iter()
-            .map(|(x, y)| (*x, y - ((intercept + x * slope).exp())))
-            .collect::<Vec<(f32, f32)>>();
-        let sqrt_mean_squared_residues = {
-            let sum_squared_residues = residues.iter().map(|(_, y)| y * y).sum::<f32>();
-            let mean_squared_residues = sum_squared_residues / num_sampling_points as f32;
-            mean_squared_residues.sqrt()
-        };
-        let max_abs_medians_residues = {
-            let abs_median_deflatten_residues = (0..num_sampling_points)
-                .map(|sample_i| {
-                    let mut at_x_batch = (0..batch_size)
-                        .map(|iter_i| residues[sample_i * batch_size + iter_i].1)
-                        .collect::<Vec<f32>>();
-                    at_x_batch.sort_by(|a, b| a.partial_cmp(b).unwrap());
-                    at_x_batch[at_x_batch.len() / 2]
-                })
-                .map(|signed_median| signed_median.abs())
-                .collect::<Vec<f32>>();
-            let mut max = f32::NEG_INFINITY;
-            for &mean in abs_median_deflatten_residues.iter() {
-                if mean > max {
-                    max = mean;
-                }
-            }
-            max
-        };
+            .map(|(x, y_observed)| y_observed - (intercept + x * slope).exp())
+            .collect::<Vec<f32>>();
+        let sqrt_mean_squared_residues = sqrt_mean_squared(&residues);
+        let max_abs_medians_residues = max_abs_median_batched(&residues, batch_size);
 
         // Plot
         let mut fg = Figure::new();
@@ -153,8 +132,8 @@ mod tests {
                 &[Caption("fit"), LineWidth(1.0), Color("black")],
             )
             .points(
-                residues.iter().map(|(x, _)| x),
-                residues.iter().map(|(_, y)| y),
+                normalized_samples.iter().map(|(x, _)| x),
+                residues.iter(),
                 &[
                     Caption("residues"),
                     PointSymbol('x'),
