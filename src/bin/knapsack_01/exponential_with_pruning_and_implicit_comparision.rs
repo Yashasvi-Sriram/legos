@@ -51,14 +51,8 @@ pub fn pack(capacity: usize, inventory: &Vec<super::KnapsackItem>, debug: bool) 
         println!(
             "#elements = {}\nweights = {:?}\nvalues = {:?}",
             inventory.len(),
-            inventory
-                .iter()
-                .map(|item| item.weight)
-                .collect::<Vec<usize>>(),
-            inventory
-                .iter()
-                .map(|item| item.value)
-                .collect::<Vec<i32>>()
+            inventory.iter().map(|item| item.weight).collect::<Vec<_>>(),
+            inventory.iter().map(|item| item.value).collect::<Vec<_>>()
         );
     }
     // Power set of indices
@@ -71,11 +65,11 @@ pub fn pack(capacity: usize, inventory: &Vec<super::KnapsackItem>, debug: bool) 
         best_combination
             .iter()
             .map(|index| inventory[*index].name)
-            .collect::<Vec<&str>>(),
+            .collect::<Vec<_>>(),
         best_combination
             .iter()
             .map(|index| inventory[*index].weight)
-            .collect::<Vec<usize>>(),
+            .collect::<Vec<_>>(),
         best_combination
             .iter()
             .map(|index| inventory[*index].weight)
@@ -83,7 +77,7 @@ pub fn pack(capacity: usize, inventory: &Vec<super::KnapsackItem>, debug: bool) 
         best_combination
             .iter()
             .map(|index| inventory[*index].value)
-            .collect::<Vec<i32>>(),
+            .collect::<Vec<_>>(),
         best_combination
             .iter()
             .map(|index| inventory[*index].value)

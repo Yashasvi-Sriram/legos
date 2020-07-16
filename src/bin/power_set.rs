@@ -88,10 +88,10 @@ mod tests {
                         let duration = duration_as_nanos as f32;
                         duration
                     })
-                    .collect::<Vec<f32>>()
+                    .collect::<Vec<_>>()
             })
             .flatten()
-            .collect::<Vec<f32>>();
+            .collect::<Vec<_>>();
 
         // Normalize and log samples
         let normalized_samples = pretty_scale(&samples, batch_size);
@@ -100,14 +100,14 @@ mod tests {
         let log_normalized_samples = normalized_samples
             .iter()
             .map(|(x, y)| (*x, y.log(std::f32::consts::E)))
-            .collect::<Vec<(f32, f32)>>();
+            .collect::<Vec<_>>();
         let (intercept, slope) = linear_regression(&log_normalized_samples).unwrap();
 
         // Errors
         let residues = normalized_samples
             .iter()
             .map(|(x, y_observed)| y_observed - (intercept + x * slope).exp())
-            .collect::<Vec<f32>>();
+            .collect::<Vec<_>>();
         let sqrt_mean_squared_residues = sqrt_mean_squared(&residues);
         let max_abs_medians_residues = max_abs_median_batched(&residues, batch_size);
 
