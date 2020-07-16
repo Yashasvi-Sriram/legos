@@ -1,27 +1,8 @@
-extern crate nalgebra as na;
-use na::linalg::QR;
-use na::{Dynamic, Matrix, VecStorage, U1, U2};
-
-type StimulusMatrix = Matrix<f32, Dynamic, U2, VecStorage<f32, Dynamic, U2>>;
-type ResponseMatrix = Matrix<f32, Dynamic, U1, VecStorage<f32, Dynamic, U1>>;
-
-pub fn linear_regression(flattened_samples: &Vec<(f32, f32)>) -> Option<(f32, f32)> {
-    let stimulus = StimulusMatrix::from_fn(flattened_samples.len(), |r, c| {
-        if c == 0 {
-            1.0
-        } else {
-            flattened_samples[r].0
-        }
-    });
-    let response = ResponseMatrix::from_fn(flattened_samples.len(), |r, _| flattened_samples[r].1);
-    let inv = QR::new(stimulus.transpose() * stimulus.clone()).try_inverse()?;
-    let b = inv * stimulus.transpose() * response;
-    let (intercept, slope) = (b[0], b[1]);
-    Some((intercept, slope))
-}
+pub mod fitting;
+pub mod preprocessing;
 
 #[macro_export]
-macro_rules! function {
+macro_rules! function_path {
     () => {{
         fn f() {}
         fn type_name_of<T>(_: T) -> &'static str {
@@ -36,7 +17,9 @@ macro_rules! function {
 mod tests {
     #[test]
     fn function_macro() {
-        assert_eq!(function!(), format!("{}::function_macro", module_path!()));
+        assert_eq!(
+            function_path!(),
+            format!("{}::function_macro", module_path!())
+        );
     }
 }
-

@@ -61,22 +61,24 @@ mod tests {
     extern crate gnuplot;
 
     use gnuplot::*;
-    use legos_test_tools::{function, linear_regression};
+    use legos_test_tools::fitting::linear_regression;
+    use legos_test_tools::function_path;
+    use legos_test_tools::preprocessing::pretty_scale;
     use std::time::Instant;
 
     #[test]
     fn is_runtime_exponential() {
         // Parameters
         let offset = 5usize;
-        let num_samples = 10usize;
-        let num_iterations = 20usize;
+        let num_sampling_points = 10usize;
+        let batch_size = 20usize;
         let rms_threshold = 1e-1;
         let mam_threshold = 1e-2;
 
         // Get runtimes
-        let samples = (offset..(offset + num_samples))
+        let samples = (offset..(offset + num_sampling_points))
             .map(|n| {
-                (0..num_iterations)
+                (0..batch_size)
                     .map(|_| {
                         let before = Instant::now();
                         power_set_of(&(0..(n as u32)).collect(), 0, &vec![]);
@@ -87,31 +89,11 @@ mod tests {
                     })
                     .collect::<Vec<f32>>()
             })
-            .collect::<Vec<Vec<f32>>>();
+            .flatten()
+            .collect::<Vec<f32>>();
 
         // Normalize and log samples
-        let runtimes_norm = samples
-            .iter()
-            .map(|runtimes| {
-                runtimes
-                    .iter()
-                    .map(|&runtime| runtime * runtime)
-                    .collect::<Vec<f32>>()
-            })
-            .flatten()
-            .sum::<f32>()
-            .sqrt();
-        let normalized_samples = samples
-            .iter()
-            .enumerate()
-            .map(|(i, runtimes)| {
-                runtimes
-                    .iter()
-                    .map(|&runtime| ((i as f32) / (num_samples as f32), runtime / runtimes_norm))
-                    .collect::<Vec<(f32, f32)>>()
-            })
-            .flatten()
-            .collect::<Vec<(f32, f32)>>();
+        let normalized_samples = pretty_scale(&samples, num_sampling_points, batch_size);
 
         // Fit
         let log_normalized_samples = normalized_samples
@@ -127,17 +109,17 @@ mod tests {
             .collect::<Vec<(f32, f32)>>();
         let sqrt_mean_squared_residues = {
             let sum_squared_residues = residues.iter().map(|(_, y)| y * y).sum::<f32>();
-            let mean_squared_residues = sum_squared_residues / num_samples as f32;
+            let mean_squared_residues = sum_squared_residues / num_sampling_points as f32;
             mean_squared_residues.sqrt()
         };
         let max_abs_medians_residues = {
-            let abs_median_deflatten_residues = (0..num_samples)
+            let abs_median_deflatten_residues = (0..num_sampling_points)
                 .map(|sample_i| {
-                    let mut deflattened = (0..num_iterations)
-                        .map(|iter_i| residues[sample_i * num_iterations + iter_i].1)
+                    let mut at_x_batch = (0..batch_size)
+                        .map(|iter_i| residues[sample_i * batch_size + iter_i].1)
                         .collect::<Vec<f32>>();
-                    deflattened.sort_by(|a, b| a.partial_cmp(b).unwrap());
-                    deflattened[deflattened.len() / 2]
+                    at_x_batch.sort_by(|a, b| a.partial_cmp(b).unwrap());
+                    at_x_batch[at_x_batch.len() / 2]
                 })
                 .map(|signed_median| signed_median.abs())
                 .collect::<Vec<f32>>();
@@ -207,7 +189,7 @@ mod tests {
                 ),
                 &[],
             );
-        fg.echo_to_file(&format!("test_logs/{}.gnuplot", function!()));
+        fg.echo_to_file(&format!("test_logs/{}.gnuplot", function_path!()));
 
         // Asserts
         assert!(
