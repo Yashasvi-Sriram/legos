@@ -37,6 +37,7 @@ mod tests {
 
     #[test]
     fn simple() {
+        // TODO: improve testcases
         assert_eq!(power_set_of(&vec![], 0, &vec![]), vec![vec![]]);
         assert_eq!(power_set_of(&vec![1], 0, &vec![]), vec![vec![], vec![1]]);
         assert_eq!(
@@ -69,6 +70,7 @@ mod tests {
 
     #[test]
     fn is_runtime_exponential() {
+        // TODO: shorten this test
         // Parameters
         let offset = 5usize;
         let num_sampling_points = 10usize;

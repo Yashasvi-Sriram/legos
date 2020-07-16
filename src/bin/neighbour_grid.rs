@@ -3,7 +3,7 @@
 /// # Proof of correctness
 /// - The loop statement in good_version() breaks <==> the grid is good
 /// - Why greedy method works?
-///     - TODO
+///     - TODO: find proof and time complexity
 mod grid {
     #[derive(Debug, Clone, PartialEq, Eq)]
     pub struct Grid {
