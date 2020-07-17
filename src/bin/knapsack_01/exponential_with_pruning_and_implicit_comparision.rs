@@ -1,4 +1,3 @@
-// TODO: use ordered set impl instead of assuming vec is a set
 fn pack_recur(
     index: usize,
     size: usize,

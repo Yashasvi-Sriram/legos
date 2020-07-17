@@ -1,3 +1,8 @@
+//! - Although this crate is for 0/1 knapsack problem, it can be used for a 0/n_i knapsack problem.
+//! - Because 0/n_i knapsack problem can be converted to 0/1 knapsack problem by just flattening the inventory.
+//! - Since we use a Vec (instead of a Set) to store the inventory, the same code works.
+//! - A 0/n_i knapsack problem is called a bounded knapsack problem.
+
 mod data;
 use data::{Input, KnapsackItem};
 
@@ -10,6 +15,7 @@ fn main() {
     exponential::pack(capacity, &inventory, true);
     exponential_with_pruning::pack(capacity, &inventory, true);
     exponential_with_pruning_and_implicit_comparision::pack(capacity, &inventory, true);
+    // TODO: impl dynamic programming algorithm
 }
 
 #[cfg(test)]

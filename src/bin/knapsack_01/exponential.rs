@@ -1,4 +1,3 @@
-// TODO: use ordered set impl instead of assuming vec is a set
 fn power_set_of(index: usize, size: usize, parent: &Vec<usize>) -> Vec<Vec<usize>> {
     if index == size {
         return vec![parent.clone()];
