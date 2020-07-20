@@ -1,4 +1,8 @@
 //! <https://codeforces.com/problemset/problem/1352/A>
+//!
+//! | CP | SP | CT | ST |
+//! | --- | --- | --- | --- |
+//! | Y | Y | Y | N |
 
 use std::io::{self, BufRead};
 

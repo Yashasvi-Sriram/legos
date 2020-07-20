@@ -1,8 +1,13 @@
 //! <https://leetcode.com/problems/merge-intervals/>
+//!
+//! | CP | SP | CT | ST |
+//! | --- | --- | --- | --- |
+//! | Y | Y | Y | N |
 
 struct Solution;
 
 impl Solution {
+    // TODO: improve this
     pub fn merge_sort(list: &[Vec<i32>]) -> Vec<Vec<i32>> {
         if list.len() == 1 {
             return vec![list[0].clone()];

@@ -1,4 +1,8 @@
 //! <https://codeforces.com/contest/4/problem/A>
+//!
+//! | CP | SP | CT | ST |
+//! | --- | --- | --- | --- |
+//! | Y | Y | Y | N |
 
 use std::io::{self, Read};
 

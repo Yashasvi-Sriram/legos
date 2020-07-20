@@ -1,9 +1,13 @@
 //! <https://codeforces.com/problemset/problem/1375/B>
+//!
+//! | CP | SP | CT | ST |
+//! | --- | --- | --- | --- |
+//! | TODO | TODO | Y | TODO |
 
 /// # Proof of correctness
 /// - The loop statement in good_version() breaks <==> the grid is good
 /// - Why greedy method works?
-///     - TODO: find proof and time complexity
+///     ...
 mod grid {
     #[derive(Debug, Clone, PartialEq, Eq)]
     pub struct Grid {

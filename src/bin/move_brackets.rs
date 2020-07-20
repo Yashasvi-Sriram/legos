@@ -1,4 +1,8 @@
 //! <https://codeforces.com/problemset/problem/1374/C>
+//!
+//! | CP | SP | CT | ST |
+//! | --- | --- | --- | --- |
+//! | Y | Y | Y | N |
 
 /// # Proof of correctness
 /// 1. An input with given constrains shall have a zero final sum.
