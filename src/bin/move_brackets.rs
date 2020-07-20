@@ -1,5 +1,4 @@
 //! <https://codeforces.com/problemset/problem/1374/C>
-use std::io::{self, BufRead};
 
 /// # Proof of correctness
 /// 1. An input with given constrains shall have a zero final sum.
@@ -32,6 +31,7 @@ fn min_moves_for_regular_bracket_sequence(brackets: &str) -> Option<u32> {
 }
 
 fn main() {
+    use std::io::{self, BufRead};
     let stdin = io::stdin();
     let mut lines = stdin.lock().lines();
     let _num_testcases = lines.next().unwrap().unwrap().parse::<u32>().unwrap();

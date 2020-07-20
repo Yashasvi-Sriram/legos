@@ -1,8 +1,11 @@
 # legos
 ## description
 - A collection of problems on structures and algorithms.
-- Collected from generally known problem statements and codeforces.
-- For each problem, the goal is to have crisp proofs, correctness tests & speed[-improvement] tests as required.
+- Collected from generally known problem statements, codeforces, leetcode ...
+- For each problem, the goal is to have crisp correctness and speed proofs and correctness tests.
+    - If proofs are not written for a problem, it means they can be inferred from its code.
+    - For problems with online judge, passing all tests should be good enough as correctness tests.
+- For few problems, there are speed and speed improvement tests.
 
 ## code
 - Code is written in stable rust.
