@@ -4,6 +4,7 @@
 - A collection of independent problems on structures and algorithms.
 - Collected from generally known problem statements, codeforces, leetcode ...
 
+### goals
 - Each problem has one problem statement.
 - A problem can have multiple solutions.
 - For each solution, the goal is to have the following requirements satisfied.
@@ -19,7 +20,6 @@
 - Each crate under `src/bin` corresponds to exactly one problem. There is no dependency b/w any two crates.
 - Unit testing is used to add correctness and time complexity[ improvment] tests.
 - `legos_test_tools` is a path dependency crate used as a dev-dependency (i.e. for testing purposes) only.
-
 - The proofs are inferred by code as much as possible. In case that's not possible, a minimal proof is written in documentation.
 - The time complexity test (of a solution) is always named `time_complexity()`.
 - The time complexity improvement test (of a problem) is always named `time_complexity_improvment()`.
