@@ -40,9 +40,10 @@
 
 ## documentation
 - The documentation of the code is itself.
-- For things that cannot be expressed in code (references, notes ...), there is minimal documentation.
+- For things that cannot be expressed in code (links, notes, ...), there is minimal documentation.
 
 ## usage
+- Documentation can be read as-is from source code or `cargo doc --open` can be used to view it in HTML form.
 - Use `cargo run --bin <crate>` to run (the main function of, not the tests) a crate.
 - Use `cargo test --bin <crate>` to run tests in a crate.
 - To ensure that all tests are implemented for each solution.
@@ -52,9 +53,8 @@
         - Some problems may have multiple solutions in same file, ensure each solution has a `test_suite!`.
     - Ensure that `cargo test` compiles.
 - Note that although the `test_suite!` ensures all goal functions are implemented, it does not validate their implementations. That burden falls on the user.
-- Use `cargo test` to run tests in all crates.
+- Use `cargo test` to run all tests in all crates.
 - To get TODOs, use `rg TODO`.
-- Documentation can be read as-is from source code or `cargo doc --open` can be used to view it in HTML form.
 
 ## roadmap
 Problems considered until now can be found as crates in `src/bin/` directory.
