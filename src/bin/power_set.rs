@@ -75,7 +75,7 @@ mod tests {
     use std::time::Instant;
 
     #[test]
-    fn is_runtime_exponential() {
+    fn time_complexity() {
         // TODO: clean
         // Parameters
         let offset = 5usize;

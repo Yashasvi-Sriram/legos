@@ -83,7 +83,7 @@ mod tests {
     }
 
     #[test]
-    fn time_complexit() {
+    fn time_complexity() {
         // TODO: check constant runtime
     }
 }

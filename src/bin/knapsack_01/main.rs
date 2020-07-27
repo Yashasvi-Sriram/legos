@@ -1,3 +1,4 @@
+//! - <https://rosettacode.org/wiki/Knapsack_problem/0-1>
 //! - Although this crate is for 0/1 knapsack problem, it can be used for a 0/n_i knapsack problem.
 //! - Because 0/n_i knapsack problem can be converted to 0/1 knapsack problem by just flattening the inventory.
 //! - Since we use a Vec (instead of a Set) to store the inventory, the same code works.
@@ -9,14 +10,6 @@ use data::{Input, KnapsackItem};
 mod exponential;
 mod exponential_with_pruning;
 mod exponential_with_pruning_and_implicit_comparision;
-
-fn main() {
-    let (capacity, inventory) = Input::full();
-    exponential::pack(capacity, &inventory, true);
-    exponential_with_pruning::pack(capacity, &inventory, true);
-    exponential_with_pruning_and_implicit_comparision::pack(capacity, &inventory, true);
-    // TODO: impl dynamic programming algorithm
-}
 
 #[cfg(test)]
 mod tests {
@@ -53,6 +46,11 @@ mod tests {
         );
     }
 
+    #[test]
+    fn dynamic_programming() {
+        // TODO
+    }
+
     extern crate gnuplot;
 
     use gnuplot::*;
@@ -63,7 +61,7 @@ mod tests {
     use std::time::Instant;
 
     #[test]
-    fn is_runtime_improved() {
+    fn time_complexity_improvment() {
         // TODO: add test to verify improvement in time complexity and visualize it
         // Parameters
         let offset = 5usize;

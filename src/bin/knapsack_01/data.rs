@@ -1,5 +1,3 @@
-//! - Data taken from <https://rosettacode.org/wiki/Knapsack_problem/0-1#C>
-
 pub struct KnapsackItem {
     pub name: &'static str,
     pub weight: usize,
