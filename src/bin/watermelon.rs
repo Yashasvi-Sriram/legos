@@ -38,7 +38,20 @@ fn main() -> io::Result<()> {
 mod tests {
     use super::*;
 
-    #[test]
+    fn cp() {
+        println!("cp");
+    }
+
+    fn tp() {
+        println!("tp");
+    }
+
+    fn sp() {
+        println!("sp");
+    }
+
+    fn tt() {}
+
     fn one_to_nine() {
         assert_eq!(can_split_into_even_parts(1u32), false);
         assert_eq!(can_split_into_even_parts(2u32), false);
@@ -52,7 +65,6 @@ mod tests {
         assert_eq!(can_split_into_even_parts(8u32), true);
     }
 
-    #[test]
     fn ten_to_nineteen() {
         assert_eq!(can_split_into_even_parts(11u32), false);
         assert_eq!(can_split_into_even_parts(13u32), false);
@@ -67,7 +79,6 @@ mod tests {
         assert_eq!(can_split_into_even_parts(18u32), true);
     }
 
-    #[test]
     fn twenty_to_twentynine() {
         assert_eq!(can_split_into_even_parts(21u32), false);
         assert_eq!(can_split_into_even_parts(23u32), false);
@@ -82,8 +93,5 @@ mod tests {
         assert_eq!(can_split_into_even_parts(28u32), true);
     }
 
-    #[test]
-    fn time_complexity() {
-        // TODO: check constant runtime
-    }
+    legos_test_tools::test_suite!(one_to_nine, ten_to_nineteen, twenty_to_twentynine);
 }

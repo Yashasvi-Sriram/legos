@@ -14,6 +14,39 @@ macro_rules! function_path {
     }};
 }
 
+#[macro_export]
+macro_rules! test_suite {
+    ($a:ident, $($b:ident),*) => {
+        #[test]
+        fn correctness_proof() {
+            cp();
+        }
+
+        #[test]
+        fn time_complexity_proof() {
+            tp();
+        }
+
+        #[test]
+        fn space_complexity_proof() {
+            sp();
+        }
+
+        #[test]
+        fn correctness_tests() {
+            // Atleast one correctness test should exist
+            $a();
+            // More are fine
+            $( $b(); )*
+        }
+
+        #[test]
+        fn time_complexity_test() {
+            tt();
+        }
+    };
+}
+
 #[cfg(test)]
 mod tests {
     #[test]
