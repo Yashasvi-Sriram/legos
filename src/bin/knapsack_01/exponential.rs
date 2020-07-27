@@ -1,3 +1,10 @@
+//! - C: implicit
+//! - T: O(2^ordered_set.len()) implicit
+//! - S: O(2^ordered_set.len())
+//!     - 2^N subsets + 2 * (2^(N-1) + 2^(N-2) + ... 2^1) clones
+//!     - 2^N + 2^N + ... 2^1
+//!     - O(2^N)
+
 fn power_set_of(index: usize, size: usize, parent: &Vec<usize>) -> Vec<Vec<usize>> {
     if index == size {
         return vec![parent.clone()];

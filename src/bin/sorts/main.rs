@@ -1,3 +1,8 @@
+//! link TODO
+
+/// - C: TODO
+/// - T: TODO
+/// - S: TODO
 pub fn merge_sort_recursive(original: &[i32]) -> Vec<i32> {
     if original.len() == 1 {
         return vec![original[0]];
@@ -34,6 +39,9 @@ pub fn merge_sort_recursive(original: &[i32]) -> Vec<i32> {
     local_merge
 }
 
+/// - C: TODO
+/// - T: TODO
+/// - S: TODO
 fn merge_sort_iterative(original: &[i32]) -> Vec<i32> {
     use core::ops::Range;
 
@@ -128,6 +136,7 @@ mod tests {
 
     #[test]
     fn iterative() {
+        // TODO: improve
         assert_eq!(
             merge_sort_iterative(vec![7, 5, 3, 2].as_slice()),
             vec![2, 3, 5, 7]
@@ -140,6 +149,7 @@ mod tests {
 
     #[test]
     fn recursive() {
+        // TODO: improve
         assert_eq!(
             merge_sort_recursive(vec![7, 5, 3, 2].as_slice()),
             vec![2, 3, 5, 7]
