@@ -1,11 +1,10 @@
 //! <https://codeforces.com/problemset/problem/1352/A>
-//!
-//! | CP | SP | CT | ST |
-//! | --- | --- | --- | --- |
-//! | Y | Y | Y | N |
 
 use std::io::{self, BufRead};
 
+/// - C: implicit
+/// - T: O(num_digits_in_num) implicit
+/// - S: O(num_digits_in_num) implicit
 fn decompose_as_round_numbers(num: u32) -> Vec<u32> {
     let mut rem = num;
     let mut round_numbers: Vec<u32> = vec![];
@@ -50,13 +49,19 @@ mod tests {
 
     #[test]
     fn provided_testcase() {
-        assert_eq!(decompose_as_round_numbers(5009u32), vec![9u32, 5000]);
+        assert_eq!(decompose_as_round_numbers(1u32), vec![1u32]);
         assert_eq!(decompose_as_round_numbers(7u32), vec![7u32]);
+        assert_eq!(decompose_as_round_numbers(10u32), vec![10u32]);
+        assert_eq!(decompose_as_round_numbers(5009u32), vec![9u32, 5000]);
         assert_eq!(
             decompose_as_round_numbers(9876u32),
             vec![6u32, 70, 800, 9000]
         );
         assert_eq!(decompose_as_round_numbers(10000u32), vec![10000u32]);
-        assert_eq!(decompose_as_round_numbers(10u32), vec![10u32]);
+    }
+
+    #[test]
+    fn time_complexity() {
+        // TODO: check constant runtime
     }
 }

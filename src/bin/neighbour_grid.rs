@@ -1,13 +1,10 @@
 //! <https://codeforces.com/problemset/problem/1375/B>
-//!
-//! | CP | SP | CT | ST |
-//! | --- | --- | --- | --- |
-//! | TODO | TODO | Y | TODO |
 
-/// # Proof of correctness
-/// - The loop statement in good_version() breaks <==> the grid is good
-/// - Why greedy method works?
-///     ...
+/// - C: TODO
+///     - The loop statement in good_version() breaks <==> the grid is good
+///     - Why greedy method works?
+/// - T: TODO
+/// - S: TODO
 mod grid {
     #[derive(Debug, Clone, PartialEq, Eq)]
     pub struct Grid {
@@ -236,12 +233,6 @@ mod tests {
     #[test]
     fn some_of_my_testcases() {
         assert_eq!(
-            grid::Grid::new(4, 3, &vec![0, 0, 0, 0, 4, 2, 0, 3, 0, 0, 0, 0])
-                .unwrap()
-                .good_version(),
-            Some(grid::Grid::new(4, 3, &vec![0, 2, 2, 2, 4, 2, 2, 3, 0, 0, 1, 0]).unwrap())
-        );
-        assert_eq!(
             grid::Grid::new(1, 1, &vec![0]).unwrap().good_version(),
             Some(grid::Grid::new(1, 1, &vec![0]).unwrap())
         );
@@ -257,5 +248,16 @@ mod tests {
             grid::Grid::new(1, 2, &vec![1, 2]).unwrap().good_version(),
             None
         );
+        assert_eq!(
+            grid::Grid::new(4, 3, &vec![0, 0, 0, 0, 4, 2, 0, 3, 0, 0, 0, 0])
+                .unwrap()
+                .good_version(),
+            Some(grid::Grid::new(4, 3, &vec![0, 2, 2, 2, 4, 2, 2, 3, 0, 0, 1, 0]).unwrap())
+        );
+    }
+
+    #[test]
+    fn time_complexity() {
+        // TODO
     }
 }

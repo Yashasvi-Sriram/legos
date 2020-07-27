@@ -1,10 +1,11 @@
-//!
-//! | CP | SP | CT | ST |
-//! | --- | --- | --- | --- |
-//! | Y | Y | TODO: improve | TODO: clean |
-
-// TODO: use ordered set impl instead of assuming vec is a set
+/// - C: implicit
+/// - T: O(2^ordered_set.len()) implicit
+/// - S: O(2^ordered_set.len())
+///     - 2^N subsets + 2 * (2^(N-1) + 2^(N-2) + ... 2^1) clones
+///     - 2^N + 2^N + ... 2^1
+///     - O(2^N)
 fn power_set_of(ordered_set: &Vec<u32>, index: usize, parent: &Vec<u32>) -> Vec<Vec<u32>> {
+    // TODO: use ordered set impl instead of assuming vec is a set
     if index == ordered_set.len() {
         return vec![parent.clone()];
     }
@@ -42,6 +43,7 @@ mod tests {
 
     #[test]
     fn simple() {
+        // TODO: improve
         assert_eq!(power_set_of(&vec![], 0, &vec![]), vec![vec![]]);
         assert_eq!(power_set_of(&vec![1], 0, &vec![]), vec![vec![], vec![1]]);
         assert_eq!(
@@ -74,6 +76,7 @@ mod tests {
 
     #[test]
     fn is_runtime_exponential() {
+        // TODO: clean
         // Parameters
         let offset = 5usize;
         let num_sampling_points = 10usize;

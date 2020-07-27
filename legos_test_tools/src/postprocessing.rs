@@ -18,11 +18,17 @@ pub fn max_abs_median_batched(values: &Vec<f32>, batch_size: usize) -> f32 {
         })
         .map(|signed_median| signed_median.abs())
         .collect::<Vec<f32>>();
-    let mut max = f32::NEG_INFINITY;
-    for &mean in abs_median_deflatten_residues.iter() {
-        if mean > max {
-            max = mean;
-        }
-    }
+    let max = abs_median_deflatten_residues
+        .iter()
+        .fold(
+            f32::NEG_INFINITY,
+            |max, &element| {
+                if element > max {
+                    element
+                } else {
+                    max
+                }
+            },
+        );
     max
 }

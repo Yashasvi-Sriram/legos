@@ -1,54 +1,24 @@
 //! <https://leetcode.com/problems/merge-intervals/>
-//!
-//! | CP | SP | CT | ST |
-//! | --- | --- | --- | --- |
-//! | Y | Y | Y | N |
 
+/// - C: implicit
+/// - T: O(n * log(n))
+///     - sorting intervals = O(n * log(n))
+///     - merging intervals = O(n)
+/// - S: O(n)
+///     - merge sort = O(n)
+///     - merge intervals = O(n)
 struct Solution;
 
 impl Solution {
-    // TODO: improve this
-    pub fn merge_sort(list: &[Vec<i32>]) -> Vec<Vec<i32>> {
-        if list.len() == 1 {
-            return vec![list[0].clone()];
-        }
-
-        let middle = list.len() / 2;
-        let sorted_left = Self::merge_sort(&list[..middle]);
-        let sorted_right = Self::merge_sort(&list[middle..]);
-
-        let mut l = 0usize;
-        let mut r = 0usize;
-        let mut local_merge = vec![];
-        loop {
-            if l == sorted_left.len() && r == sorted_right.len() {
-                break;
-            } else if l < sorted_left.len() && r == sorted_right.len() {
-                local_merge.push(sorted_left[l].clone());
-                l += 1;
-            } else if l == sorted_left.len() && r < sorted_right.len() {
-                local_merge.push(sorted_right[r].clone());
-                r += 1;
-            } else {
-                let left = sorted_left[l].clone();
-                let right = sorted_right[r].clone();
-                if left[0] < right[0] {
-                    local_merge.push(left);
-                    l += 1;
-                } else {
-                    local_merge.push(right);
-                    r += 1;
-                }
-            }
-        }
-        local_merge
-    }
-
     pub fn merge(intervals: Vec<Vec<i32>>) -> Vec<Vec<i32>> {
         if intervals.len() == 0 {
             return vec![];
         }
-        let sorted_intervals = Self::merge_sort(&intervals);
+        let sorted_intervals = {
+            let mut sorted_intervals = intervals;
+            sorted_intervals.sort_by(|a, b| a[0].cmp(&b[0]));
+            sorted_intervals
+        };
         // println!("{:?}", sorted_intervals);
         let mut merged_intervals = vec![];
         let mut n = 0usize;

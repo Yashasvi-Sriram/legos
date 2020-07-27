@@ -1,11 +1,10 @@
 //! <https://codeforces.com/contest/4/problem/A>
-//!
-//! | CP | SP | CT | ST |
-//! | --- | --- | --- | --- |
-//! | Y | Y | Y | N |
 
 use std::io::{self, Read};
 
+/// - C: implicit
+/// - T: O(1) implicit
+/// - S: O(1) implicit
 fn can_split_into_even_parts(num: u32) -> bool {
     // Odd => NO
     if num % 2 == 1 {
@@ -81,5 +80,10 @@ mod tests {
         assert_eq!(can_split_into_even_parts(24u32), true);
         assert_eq!(can_split_into_even_parts(26u32), true);
         assert_eq!(can_split_into_even_parts(28u32), true);
+    }
+
+    #[test]
+    fn time_complexit() {
+        // TODO: check constant runtime
     }
 }
