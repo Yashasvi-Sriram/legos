@@ -1,6 +1,7 @@
 pub mod fitting;
 pub mod postprocessing;
 pub mod preprocessing;
+pub mod proof;
 
 #[macro_export]
 macro_rules! function_path {
@@ -19,17 +20,20 @@ macro_rules! test_suite {
     ($a:ident, $($b:ident),*) => {
         #[test]
         fn correctness_proof() {
-            cp();
+            let cp : legos_test_tools::proof::CorrectnessProof = cp();
+            println!("{:?}", cp);
         }
 
         #[test]
         fn time_complexity_proof() {
-            tp();
+            let tp : legos_test_tools::proof::ComplexityProof = tp();
+            println!("{:?}", tp);
         }
 
         #[test]
         fn space_complexity_proof() {
-            sp();
+            let sp : legos_test_tools::proof::ComplexityProof = sp();
+            println!("{:?}", sp);
         }
 
         #[test]

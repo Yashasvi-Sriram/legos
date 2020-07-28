@@ -51,8 +51,6 @@ mod tests {
         // TODO
     }
 
-    extern crate gnuplot;
-
     use gnuplot::*;
     use legos_test_tools::fitting::linear_regression;
     use legos_test_tools::function_path;

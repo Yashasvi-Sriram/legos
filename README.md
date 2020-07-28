@@ -18,10 +18,11 @@
 ## code
 - Code is written in rust stable.
 - Each crate under `src/bin` corresponds to exactly one problem. There is no dependency b/w any two crates.
+- If any of the requirements is not complete, it is marked with `TODO` for tracking purposes.
 
 ### testing
 - The goals mentioned above are ensured using the unit test system.
-- `legos_test_tools` is a path dependency crate used as a dev-dependency (i.e. for testing purposes) only.
+- `legos_test_tools` is a crate used as a dev-dependency (i.e. for testing purposes) only.
 - `legos_test_tools` provides a macro `test_suite!` which takes > 0 function names as arguments.
     - It adds a set of tests, specifically.
         | | test | inner function call(s) |
@@ -36,7 +37,6 @@
     - This way the `cargo test` won't compile unless all the tests are implemented.
 - `test_suite!` is meant to be used per solution.
 - The time complexity improvement test (of a problem) is always named `time_complexity_improvment()`.
-- If any of the requirements is not complete, it is marked with `TODO` for tracking purposes.
 
 ## documentation
 - The documentation of the code is itself.

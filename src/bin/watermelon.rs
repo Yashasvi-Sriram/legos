@@ -2,9 +2,6 @@
 
 use std::io::{self, Read};
 
-/// - C: implicit
-/// - T: O(1) implicit
-/// - S: O(1) implicit
 fn can_split_into_even_parts(num: u32) -> bool {
     // Odd => NO
     if num % 2 == 1 {
@@ -37,20 +34,26 @@ fn main() -> io::Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use legos_test_tools::proof::{BigO, ComplexityProof, CorrectnessProof};
+    use legos_test_tools::test_suite;
 
-    fn cp() {
-        println!("cp");
+    test_suite!(one_to_nine, ten_to_nineteen, twenty_to_twentynine);
+
+    fn cp() -> CorrectnessProof {
+        CorrectnessProof::Inferred
     }
 
-    fn tp() {
-        println!("tp");
+    fn tp() -> ComplexityProof {
+        ComplexityProof::Inferred(BigO::C)
     }
 
-    fn sp() {
-        println!("sp");
+    fn sp() -> ComplexityProof {
+        ComplexityProof::Inferred(BigO::C)
     }
 
-    fn tt() {}
+    fn tt() {
+        // TODO
+    }
 
     fn one_to_nine() {
         assert_eq!(can_split_into_even_parts(1u32), false);
@@ -92,6 +95,4 @@ mod tests {
         assert_eq!(can_split_into_even_parts(26u32), true);
         assert_eq!(can_split_into_even_parts(28u32), true);
     }
-
-    legos_test_tools::test_suite!(one_to_nine, ten_to_nineteen, twenty_to_twentynine);
 }
