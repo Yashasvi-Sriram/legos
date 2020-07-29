@@ -63,7 +63,11 @@ Problems considered until now can be found as crates in `src/bin/` directory.
 - [ ] How to detect solutions with no `test_suite!`?
 - [ ] More validation on test implementation.
 - [ ] Handle `time_complexity_improvment()`.
-- [ ] Proof enum: Inferred, Todo, NotPlanned variants.
+- [x] Return types for tests.
+    CorrectnessProof and ComplexityProof enums.
+    No enum for time complexity test.
+    If left empty it implies not planned.
+    If planned but not completed, leave a TODO.
 - [ ] Use `test_suite!` for all solutions.
 
 ### problems
