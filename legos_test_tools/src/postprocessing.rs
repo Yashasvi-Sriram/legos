@@ -32,3 +32,8 @@ pub fn max_abs_median_batched(values: &Vec<f32>, batch_size: usize) -> f32 {
         );
     max
 }
+
+#[cfg(test)]
+mod tests {
+    // TODO: add
+}

@@ -2,9 +2,6 @@
 
 use std::io::{self, BufRead};
 
-/// - C: implicit
-/// - T: O(num_digits_in_num) implicit
-/// - S: O(num_digits_in_num) implicit
 fn decompose_as_round_numbers(num: u32) -> Vec<u32> {
     let mut rem = num;
     let mut round_numbers: Vec<u32> = vec![];
@@ -46,8 +43,27 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use legos_test_tools::proof::{BigO, ComplexityProof, CorrectnessProof};
+    use legos_test_tools::test_suite;
 
-    #[test]
+    test_suite!(provided_testcase,);
+
+    fn cp() -> CorrectnessProof {
+        CorrectnessProof::Inferred
+    }
+
+    fn tp() -> ComplexityProof {
+        ComplexityProof::Inferred(BigO::C)
+    }
+
+    fn sp() -> ComplexityProof {
+        ComplexityProof::Inferred(BigO::C)
+    }
+
+    fn tt() {
+        // TODO
+    }
+
     fn provided_testcase() {
         assert_eq!(decompose_as_round_numbers(1u32), vec![1u32]);
         assert_eq!(decompose_as_round_numbers(7u32), vec![7u32]);
@@ -58,10 +74,5 @@ mod tests {
             vec![6u32, 70, 800, 9000]
         );
         assert_eq!(decompose_as_round_numbers(10000u32), vec![10000u32]);
-    }
-
-    #[test]
-    fn time_complexity() {
-        // TODO: check constant runtime
     }
 }

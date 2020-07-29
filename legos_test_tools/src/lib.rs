@@ -21,19 +21,19 @@ macro_rules! test_suite {
         #[test]
         fn correctness_proof() {
             let cp : legos_test_tools::proof::CorrectnessProof = cp();
-            println!("{:?}", cp);
+            println!("CP={:?}", cp);
         }
 
         #[test]
         fn time_complexity_proof() {
             let tp : legos_test_tools::proof::ComplexityProof = tp();
-            println!("{:?}", tp);
+            println!("TP={:?}", tp);
         }
 
         #[test]
         fn space_complexity_proof() {
             let sp : legos_test_tools::proof::ComplexityProof = sp();
-            println!("{:?}", sp);
+            println!("SP={:?}", sp);
         }
 
         #[test]
