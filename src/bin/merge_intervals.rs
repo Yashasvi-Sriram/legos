@@ -1,12 +1,5 @@
 //! <https://leetcode.com/problems/merge-intervals/>
 
-/// - C: implicit
-/// - T: O(n * log(n))
-///     - sorting intervals = O(n * log(n))
-///     - merging intervals = O(n)
-/// - S: O(n)
-///     - merge sort = O(n)
-///     - merge intervals = O(n)
 struct Solution;
 
 impl Solution {
@@ -48,8 +41,32 @@ impl Solution {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use legos_test_tools::proof::{BigO, ComplexityProof, CorrectnessProof};
+    use legos_test_tools::test_suite;
 
-    #[test]
+    test_suite!(testcases,);
+
+    fn cp() -> CorrectnessProof {
+        CorrectnessProof::Inferred
+    }
+
+    fn tp() -> ComplexityProof {
+        ComplexityProof::Because(
+            "Sorting intervals == O(n * log(n)), merging intervals == O(n). Hence proved."
+                .to_string(),
+            BigO::NLogN,
+        )
+    }
+
+    fn sp() -> ComplexityProof {
+        ComplexityProof::Because(
+            "Merge sort == O(n), merge intervals == O(n). Hence proved.".to_string(),
+            BigO::N,
+        )
+    }
+
+    fn tt() {}
+
     fn testcases() {
         assert_eq!(Solution::merge(vec![]).len(), 0);
         assert_eq!(Solution::merge(vec![vec![-1, 4]]), vec![vec![-1, 4]]);

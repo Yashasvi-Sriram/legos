@@ -49,7 +49,7 @@ mod tests {
 
     fn sp() -> ComplexityProof {
         ComplexityProof::Because(
-            "2^N subsets + max N clones at a time == 2^N + N. Hence O(2^N)".to_string(),
+            "2^N subsets + max N clones at a time == 2^N + N. Hence proved".to_string(),
             BigO::TwoToN,
         )
     }
