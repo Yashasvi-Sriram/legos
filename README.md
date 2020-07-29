@@ -48,7 +48,7 @@
 - Use `cargo test --bin <crate> -- --nocapture` to run tests in a crate while printing their output. For silent execution use `cargo test --bin <crate>`.
 - To ensure that all tests are implemented for each solution.
     - Ensure that `test_suite!` exists for each solution.
-        - Use `rg` or similar tools.
+        - Try using `rg` or similar tools.
         - `rg --files-without-match test_suite!` prints all files without `test_suite!`.
         - Some problems may have multiple solutions in same file, ensure each solution has a `test_suite!`.
     - Ensure that `cargo test` compiles.
@@ -68,7 +68,7 @@ Problems considered until now can be found as crates in `src/bin/` directory.
     No enum for time complexity test.
     If left empty it implies not planned.
     If planned but not completed, leave a TODO.
-- [ ] Use `test_suite!` for all solutions.
+- [x] Use `test_suite!` for all solutions until now.
 
 ### problems
 - [ ] dp
