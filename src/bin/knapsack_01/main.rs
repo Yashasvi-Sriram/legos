@@ -1,4 +1,4 @@
-//! - <https://rosettacode.org/wiki/Knapsack_problem/0-1>
+//! <https://rosettacode.org/wiki/Knapsack_problem/0-1>
 //! - Although this crate is for 0/1 knapsack problem, it can be used for a 0/n_i knapsack problem.
 //! - Because 0/n_i knapsack problem can be converted to 0/1 knapsack problem by just flattening the inventory.
 //! - Since we use a Vec (instead of a Set) to store the inventory, the same code works.
@@ -14,37 +14,6 @@ mod exponential_with_pruning_and_implicit_comparision;
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn exponential() {
-        let (capacity, inventory) = Input::full();
-        let best_combination = exponential::pack(capacity, &inventory, false);
-        assert_eq!(
-            vec![0, 1, 2, 3, 4, 6, 10, 15, 16, 17, 18, 20],
-            best_combination
-        );
-    }
-
-    #[test]
-    fn exponential_with_pruning() {
-        let (capacity, inventory) = Input::full();
-        let best_combination = exponential_with_pruning::pack(capacity, &inventory, false);
-        assert_eq!(
-            vec![0, 1, 2, 3, 4, 6, 10, 15, 16, 17, 18, 20],
-            best_combination
-        );
-    }
-
-    #[test]
-    fn exponential_with_pruning_and_implicit_comparision() {
-        let (capacity, inventory) = Input::full();
-        let best_combination =
-            exponential_with_pruning_and_implicit_comparision::pack(capacity, &inventory, false);
-        assert_eq!(
-            vec![0, 1, 2, 3, 4, 6, 10, 15, 16, 17, 18, 20],
-            best_combination
-        );
-    }
 
     #[test]
     fn dynamic_programming() {

@@ -92,3 +92,18 @@ pub fn pack(capacity: usize, inventory: &Vec<super::KnapsackItem>, debug: bool) 
     }
     best_combination.clone()
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::data::Input;
+
+    #[test]
+    fn full_inventory() {
+        let (capacity, inventory) = Input::full();
+        let best_combination = super::pack(capacity, &inventory, false);
+        assert_eq!(
+            vec![0, 1, 2, 3, 4, 6, 10, 15, 16, 17, 18, 20],
+            best_combination
+        );
+    }
+}
