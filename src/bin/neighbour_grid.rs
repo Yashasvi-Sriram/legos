@@ -1,10 +1,5 @@
 //! <https://codeforces.com/problemset/problem/1375/B>
 
-/// - C: TODO
-///     - The loop statement in good_version() breaks <==> the grid is good
-///     - Why greedy method works?
-/// - T: TODO
-/// - S: TODO
 mod grid {
     #[derive(Debug, Clone, PartialEq, Eq)]
     pub struct Grid {
@@ -186,8 +181,29 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use legos_test_tools::proof::{ComplexityProof, CorrectnessProof};
+    use legos_test_tools::test_suite;
 
-    #[test]
+    test_suite!(provided_testcases, some_of_my_testcases);
+
+    fn cp() -> CorrectnessProof {
+        // The loop statement in good_version() breaks <==> the grid is good
+        // Why greedy method works?
+        CorrectnessProof::TODO
+    }
+
+    fn tp() -> ComplexityProof {
+        ComplexityProof::TODO
+    }
+
+    fn sp() -> ComplexityProof {
+        ComplexityProof::TODO
+    }
+
+    fn tt() {
+        // TODO
+    }
+
     fn provided_testcases() {
         assert_eq!(
             grid::Grid::new(3, 4, &vec![0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0])
@@ -230,7 +246,6 @@ mod tests {
         );
     }
 
-    #[test]
     fn some_of_my_testcases() {
         assert_eq!(
             grid::Grid::new(1, 1, &vec![0]).unwrap().good_version(),
@@ -254,10 +269,5 @@ mod tests {
                 .good_version(),
             Some(grid::Grid::new(4, 3, &vec![0, 2, 2, 2, 4, 2, 2, 3, 0, 0, 1, 0]).unwrap())
         );
-    }
-
-    #[test]
-    fn time_complexity() {
-        // TODO
     }
 }
