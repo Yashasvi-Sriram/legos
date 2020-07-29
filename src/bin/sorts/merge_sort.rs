@@ -1,7 +1,4 @@
 mod recursive {
-    /// - C: TODO
-    /// - T: TODO
-    /// - S: TODO
     fn sort(original: &[i32]) -> Vec<i32> {
         if original.len() == 1 {
             return vec![original[0]];
@@ -40,7 +37,25 @@ mod recursive {
 
     #[cfg(test)]
     mod tests {
-        #[test]
+        use legos_test_tools::proof::{ComplexityProof, CorrectnessProof};
+        use legos_test_tools::test_suite;
+
+        test_suite!(simple,);
+
+        fn cp() -> CorrectnessProof {
+            CorrectnessProof::Inferred
+        }
+
+        fn tp() -> ComplexityProof {
+            ComplexityProof::TODO
+        }
+
+        fn sp() -> ComplexityProof {
+            ComplexityProof::TODO
+        }
+
+        fn tt() {}
+
         fn simple() {
             // TODO: improve
             assert_eq!(super::sort(vec![7, 5, 3, 2].as_slice()), vec![2, 3, 5, 7]);
@@ -53,9 +68,6 @@ mod recursive {
 }
 
 mod iterative {
-    /// - C: TODO
-    /// - T: TODO
-    /// - S: TODO
     fn sort(original: &[i32]) -> Vec<i32> {
         use core::ops::Range;
 
@@ -146,7 +158,25 @@ mod iterative {
 
     #[cfg(test)]
     mod tests {
-        #[test]
+        use legos_test_tools::proof::{ComplexityProof, CorrectnessProof};
+        use legos_test_tools::test_suite;
+
+        test_suite!(simple,);
+
+        fn cp() -> CorrectnessProof {
+            CorrectnessProof::Inferred
+        }
+
+        fn tp() -> ComplexityProof {
+            ComplexityProof::TODO
+        }
+
+        fn sp() -> ComplexityProof {
+            ComplexityProof::TODO
+        }
+
+        fn tt() {}
+
         fn simple() {
             // TODO: improve
             assert_eq!(super::sort(vec![7, 5, 3, 2].as_slice()), vec![2, 3, 5, 7]);
