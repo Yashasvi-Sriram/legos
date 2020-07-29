@@ -1,9 +1,3 @@
-/// - C: implicit
-/// - T: O(2^ordered_set.len()) implicit
-/// - S: O(2^ordered_set.len())
-///     - 2^N subsets + 2 * (2^(N-1) + 2^(N-2) + ... 2^1) clones
-///     - 2^N + 2^N + ... 2^1
-///     - O(2^N)
 fn power_set_of(ordered_set: &Vec<u32>, index: usize, parent: &Vec<u32>) -> Vec<Vec<u32>> {
     // TODO: use ordered set impl instead of assuming vec is a set
     if index == ordered_set.len() {
@@ -40,40 +34,34 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use legos_test_tools::proof::{BigO, ComplexityProof, CorrectnessProof};
+    use legos_test_tools::test_suite;
 
-    #[test]
-    fn simple() {
-        // TODO: improve
-        assert_eq!(power_set_of(&vec![], 0, &vec![]), vec![vec![]]);
-        assert_eq!(power_set_of(&vec![1], 0, &vec![]), vec![vec![], vec![1]]);
-        assert_eq!(
-            power_set_of(&vec![1, 2], 0, &vec![]),
-            vec![vec![], vec![2], vec![1], vec![1, 2]]
-        );
-        assert_eq!(
-            power_set_of(&vec![1, 2, 3], 0, &vec![]),
-            vec![
-                vec![],
-                vec![3],
-                vec![2],
-                vec![2, 3],
-                vec![1],
-                vec![1, 3],
-                vec![1, 2],
-                vec![1, 2, 3]
-            ]
-        );
+    test_suite!(simple,);
+
+    fn cp() -> CorrectnessProof {
+        CorrectnessProof::Inferred
     }
 
-    use gnuplot::*;
-    use legos_test_tools::fitting::linear_regression;
-    use legos_test_tools::function_path;
-    use legos_test_tools::postprocessing::{max_abs_median_batched, sqrt_mean_squared};
-    use legos_test_tools::preprocessing::pretty_scale;
-    use std::time::Instant;
+    fn tp() -> ComplexityProof {
+        ComplexityProof::Inferred(BigO::TwoToN)
+    }
 
-    #[test]
-    fn time_complexity() {
+    fn sp() -> ComplexityProof {
+        ComplexityProof::Because(
+            "There are 2^N subsets + 2 * (2^(N-1) + 2^(N-2) + ... 2^1) clones, i.e. 2^N + 2^N + ... 2^1. Hence O(2^N)".to_string(),
+            BigO::TwoToN,
+        )
+    }
+
+    fn tt() {
+        use gnuplot::*;
+        use legos_test_tools::fitting::linear_regression;
+        use legos_test_tools::function_path;
+        use legos_test_tools::postprocessing::{max_abs_median_batched, sqrt_mean_squared};
+        use legos_test_tools::preprocessing::pretty_scale;
+        use std::time::Instant;
+
         // TODO: clean
         // Parameters
         let offset = 5usize;
@@ -184,6 +172,29 @@ mod tests {
         assert!(
             max_abs_medians_residues < mam_threshold,
             "Possible problems: There may be pattern in residues."
+        );
+    }
+
+    fn simple() {
+        // TODO: improve
+        assert_eq!(power_set_of(&vec![], 0, &vec![]), vec![vec![]]);
+        assert_eq!(power_set_of(&vec![1], 0, &vec![]), vec![vec![], vec![1]]);
+        assert_eq!(
+            power_set_of(&vec![1, 2], 0, &vec![]),
+            vec![vec![], vec![2], vec![1], vec![1, 2]]
+        );
+        assert_eq!(
+            power_set_of(&vec![1, 2, 3], 0, &vec![]),
+            vec![
+                vec![],
+                vec![3],
+                vec![2],
+                vec![2, 3],
+                vec![1],
+                vec![1, 3],
+                vec![1, 2],
+                vec![1, 2, 3]
+            ]
         );
     }
 }

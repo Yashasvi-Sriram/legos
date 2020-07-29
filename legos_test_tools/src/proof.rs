@@ -19,5 +19,5 @@ pub enum BigO {
 pub enum ComplexityProof {
     TODO,
     Inferred(BigO),
-    Because(BigO, String),
+    Because(String, BigO),
 }

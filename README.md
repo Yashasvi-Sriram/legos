@@ -45,7 +45,7 @@
 ## usage
 - Documentation can be read as-is from source code or `cargo doc --open` can be used to view it in HTML form.
 - Use `cargo run --bin <crate>` to run (the main function of, not the tests) a crate.
-- Use `cargo test --bin <crate>` to run tests in a crate.
+- Use `cargo test --bin <crate> -- --nocapture` to run tests in a crate while printing their output. For silent execution use `cargo test --bin <crate>`.
 - To ensure that all tests are implemented for each solution.
     - Ensure that `test_suite!` exists for each solution.
         - Use `rg` or similar tools.
