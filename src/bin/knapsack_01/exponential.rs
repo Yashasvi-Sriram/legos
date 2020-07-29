@@ -1,10 +1,3 @@
-//! - C: implicit
-//! - T: O(2^ordered_set.len()) implicit
-//! - S: O(2^ordered_set.len())
-//!     - 2^N subsets + 2 * (2^(N-1) + 2^(N-2) + ... 2^1) clones
-//!     - 2^N + 2^N + ... 2^1
-//!     - O(2^N)
-
 fn power_set_of(index: usize, size: usize, parent: &Vec<usize>) -> Vec<Vec<usize>> {
     if index == size {
         return vec![parent.clone()];
@@ -86,8 +79,28 @@ pub fn pack(capacity: usize, inventory: &Vec<super::KnapsackItem>, debug: bool) 
 #[cfg(test)]
 mod tests {
     use crate::data::Input;
+    use legos_test_tools::proof::{BigO, ComplexityProof, CorrectnessProof};
+    use legos_test_tools::test_suite;
 
-    #[test]
+    test_suite!(full_inventory,);
+
+    fn cp() -> CorrectnessProof {
+        CorrectnessProof::Inferred
+    }
+
+    fn tp() -> ComplexityProof {
+        ComplexityProof::Inferred(BigO::TwoToN)
+    }
+
+    fn sp() -> ComplexityProof {
+        ComplexityProof::Because(
+            "2^N subsets + max N clones at a time == 2^N + N. Hence proved".to_string(),
+            BigO::TwoToN,
+        )
+    }
+
+    fn tt() {}
+
     fn full_inventory() {
         let (capacity, inventory) = Input::full();
         let best_combination = super::pack(capacity, &inventory, false);
