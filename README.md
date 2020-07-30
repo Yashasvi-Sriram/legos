@@ -54,7 +54,7 @@
     - Ensure that `cargo test` compiles.
 - Note that although the `test_suite!` ensures all goal functions are implemented, it does not validate their implementations. That burden falls on the user.
 - Use `cargo test` to run all tests in all crates.
-- To get TODOs, use `rg TODO`.
+- To get TODOs, use `rg -i TODO`.
 
 ## roadmap
 Problems considered until now can be found as crates in `src/bin/` directory.
@@ -71,9 +71,10 @@ Problems considered until now can be found as crates in `src/bin/` directory.
 - [x] Use `test_suite!` for all solutions until now.
 
 ### problems
-- [ ] dp
-    - [ ] knapsack 0/1
-- [ ] greedy
-- [ ] divide and conquer
-    - [ ] merge sort
-    - [ ] quick sort
+- [ ] knapsack 0/1
+    - [ ] dp
+    - [x] exponential
+- [ ] merge sort
+    - [ ] iterative
+    - [ ] recursive
+- [ ] quick sort

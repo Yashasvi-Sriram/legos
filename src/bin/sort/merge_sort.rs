@@ -1,3 +1,5 @@
+// TODO: test iterative vs recursive performance, iterative was made in the hope that it will be faster
+
 mod recursive {
     fn sort(original: &[i32]) -> Vec<i32> {
         if original.len() == 1 {
@@ -103,7 +105,7 @@ mod iterative {
         stack.push(0..original.len());
         // Used for merging two sorted arrays. Avoids allocating space log(n) times.
         // Required to allocated because cannot do merge with O(1) space and O(n) time.
-        let mut temporary_merge_space = Vec::<i32>::with_capacity(original.len());
+        let mut temporary_merge_space = vec![0i32; original.len()];
         while let Some(current_range) = stack.pop() {
             if current_range.len() == 1 {
                 let idx = current_range.start;
@@ -116,26 +118,31 @@ mod iterative {
                 let Range { start, end } = current_range;
                 let middle = start + current_range.len() / 2;
 
-                temporary_merge_space.clear();
+                // temporary_merge_space.clear();
+                let mut tmp_i = 0usize;
                 let mut l = start;
                 let mut r = middle;
                 loop {
                     if l == middle && r == end {
                         break;
                     } else if l < middle && r == end {
-                        temporary_merge_space.push(sorted[l].val);
+                        temporary_merge_space[tmp_i] = sorted[l].val;
+                        tmp_i += 1;
                         l += 1;
                     } else if l == middle && r < end {
-                        temporary_merge_space.push(sorted[r].val);
+                        temporary_merge_space[tmp_i] = sorted[r].val;
+                        tmp_i += 1;
                         r += 1;
                     } else {
                         let left = sorted[l].val;
                         let right = sorted[r].val;
                         if left < right {
-                            temporary_merge_space.push(left);
+                            temporary_merge_space[tmp_i] = left;
+                            tmp_i += 1;
                             l += 1;
                         } else {
-                            temporary_merge_space.push(right);
+                            temporary_merge_space[tmp_i] = right;
+                            tmp_i += 1;
                             r += 1;
                         }
                     }
