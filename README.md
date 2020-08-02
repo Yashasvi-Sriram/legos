@@ -71,10 +71,11 @@ Problems considered until now can be found as crates in `src/bin/` directory.
 - [x] Use `test_suite!` for all solutions until now.
 
 ### problems
-- [ ] knapsack 0/1
-    - [ ] dp
-    - [x] exponential
-- [ ] merge sort
-    - [ ] iterative
-    - [ ] recursive
-- [ ] quick sort
+- [ ] TODOs.
+- [ ] knapsack 0/1.
+    - [ ] dp.
+    - [x] exponential.
+- [ ] merge sort.
+    - [ ] iterative.
+    - [ ] recursive.
+- [ ] quick sort.
